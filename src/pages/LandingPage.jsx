@@ -101,7 +101,7 @@ return (<>
                 <p className="hero-label">SISTEM PAKAR PENENTUAN MUSTAHIQ</p>
                 <h1>Pastikan Zakat Sampai Kepada yang Berhak</h1>
                 <p className="hero-description"> Sistem membantu mengidentifikasi calon penerima zakat berdasarkan
-                    kriteria yang telah ditentukan. </p> <a href="/" className="hero-button"> Cek Kelayakan </a>
+                    kriteria yang telah ditentukan. </p> <a href="/register/mustahiq" className="hero-button"> Cek Kelayakan </a>
             </div>
         </section> {
         /*features section*/

@@ -16,7 +16,7 @@ function Navbar() {
 
       <div className="nav-auth">
         <a href="/login" className="btn-masuk">Masuk</a>
-        <a href="/register" className="btn-Registrasi">Registrasi</a>
+        <a href="/register/options" className="btn-Registrasi">Registrasi</a>
       </div>
     </nav>
   );

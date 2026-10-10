@@ -1,7 +1,7 @@
 import zakataraLogo from "../assets/zakatara-logo.png";
 import { Link } from "react-router-dom";
 
-function RegisterPage() {
+function RegisterOptionsPage() {
   return (
     <div className="register-page">
       <div className="register-container">
@@ -59,4 +59,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default RegisterOptionsPage;
