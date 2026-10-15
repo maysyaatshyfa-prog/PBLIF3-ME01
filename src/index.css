@@ -54,7 +54,8 @@ body {
 }
 
 .nav-menu {
-  margin: 0 auto;
+  margin-left: 400px;
+  margin-right: auto;
 
   display: flex;
   align-items: center;
@@ -961,6 +962,13 @@ body {
   box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.12);
 }
 
+.login-error {
+  margin: 12px 0;
+  color: #C62828;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* Link lupa password */
 .forgot-password {
   text-align: right;
@@ -1024,6 +1032,157 @@ body {
 
 .register-box a:hover {
   text-decoration: underline;
+}
+
+
+
+/* TOMBOL CEK STATUS */
+.status-trigger {
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #F58220;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status-trigger:hover {
+  color: #C96500;
+}
+
+/* LATAR POPUP */
+.token-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* KARTU POPUP */
+.token-modal {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+  animation: tokenModalIn 0.25s ease-out both;
+}
+
+@keyframes tokenModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.token-modal h2 {
+  margin: 0 28px 10px 0;
+  color: #171717;
+  font-size: 23px;
+}
+
+.token-modal>p {
+  margin: 0 0 22px;
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* TOMBOL TUTUP */
+.token-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  color: #777777;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* INPUT TOKEN */
+.token-modal form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.token-modal form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+  border: 1px solid #DDDDDD;
+  border-radius: 9px;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.token-modal form input:focus {
+  border-color: #F58220;
+  outline: 2px solid rgba(245, 130, 32, 0.15);
+}
+
+/* TOMBOL CEK TOKEN */
+.token-submit {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 9px;
+  background: #F58220;
+  color: #FFFFFF;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.token-submit:hover {
+  background: #DF710F;
+}
+
+.token-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* PESAN ERROR */
+.token-error {
+  margin: 14px 0 0;
+  color: #C62828;
+  font-size: 14px;
+}
+
+/* HASIL CEK STATUS */
+.token-result {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #FFF5E8;
+  overflow-wrap: anywhere;
+}
+
+.token-result h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.token-result p {
+  margin: 7px 0;
+  font-size: 14px;
 }
 
 
@@ -1179,9 +1338,9 @@ body {
 ========================= */
 
 .register-muzakki-page .register-container {
-  width: 100%;
-  max-width: 950px;
-  margin: 20px auto;
+  width: 95%;
+  max-width: 1100px;
+  margin: 0 auto;
   padding: 0;
 
   display: grid;
@@ -1196,7 +1355,7 @@ body {
 ========================= */
 
 .register-information {
-  background-image: url("./assets/regmuz.jpg");
+  background-image: url("./assets/regmuz3.jpg");
   background-size: cover;
   padding: 40px 35px;
   border-radius: 5px;
@@ -1206,6 +1365,7 @@ body {
 .register-information h2 {
   margin: 0 0 18px;
   font-family: "Newsreader", Georgia, serif;
+  font-weight: 600;
   font-size: 28px;
   line-height: 1.1;
   color: #111111;
@@ -1214,6 +1374,7 @@ body {
 .register-information>p {
   margin: 0;
   font-family: "Inter", sans-serif;
+  font-weight: 500;
   font-size: 14px;
   line-height: 1.7;
   color: #111111;
@@ -1227,6 +1388,7 @@ body {
   margin: 8px 0;
   font-family: "Inter", sans-serif;
   font-size: 14px;
+  font-weight: 500;
   color: #333333;
 }
 
@@ -1717,76 +1879,181 @@ body {
   cursor: not-allowed;
 }
 
-.question-error {
-  max-width: 900px;
-  margin: 0 auto 20px;
-  padding: 14px 18px;
-  background: #FFF3E0;
-  border: 1px solid #F7941D;
-  border-radius: 10px;
-  color: #B85C00;
-  font-size: 14px;
-  line-height: 1.5;
+/* =========================
+   POPUP PESAN ERROR
+========================= */
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.45);
 }
 
-.evidence-upload {
-  margin-top: 20px;
-  padding: 18px;
-  background: #F9F9F9;
-  border: 1px dashed #CCCCCC;
+/* Kotak popup */
+.popup-alert {
+  width: 100%;
+  max-width: 525px;
+  padding: 38px 30px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
+  animation: popupFadeIn 0.2s ease-out;
+}
+
+/* Ikon peringatan merah */
+.popup-alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 22px;
+  border: 2px solid #DC2626;
+  border-radius: 50%;
+  background: #FEE2E2;
+  color: #DC2626;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+/* Judul popup */
+.popup-alert h3 {
+  margin: 0 0 18px;
+  color: #111111;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* Isi pesan */
+.popup-alert p {
+  margin: 0 0 30px;
+  color: #666666;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Tombol Mengerti */
+.popup-alert button {
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 20px;
+  border: none;
   border-radius: 10px;
+  background: #F7941D;
+  color: #111111;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Efek hover */
+.popup-alert button:hover {
+  background: #E68100;
+}
+
+/* Fokus keyboard */
+.popup-alert button:focus-visible {
+  outline: 3px solid #111111;
+  outline-offset: 3px;
+}
+
+/* Animasi popup */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================
+   BUKTI PENDUKUNG
+========================= */
+
+.evidence-upload {
+  margin-top: 22px;
+  padding: 24px;
+  background: #FFFFFF;
+  border: 1px solid #E8E1D8;
+  border-radius: 14px;
+  transition: border-color 0.2s ease;
 }
 
 .evidence-upload label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  color: #222222;
+  font-size: 16px;
   font-weight: 600;
-  color: #111111;
 }
 
 .evidence-upload p {
-  margin: 0 0 12px;
-  color: #666666;
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 0 0 18px;
+  color: #777777;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .evidence-upload input[type="file"] {
+  display: block;
   width: 100%;
-  font-size: 14px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #E5E5E5;
+  border-radius: 10px;
+  background: #FAFAFA;
+  color: #555555;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.evidence-upload input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 9px 15px;
+  border: none;
+  border-radius: 7px;
+  background: #FFF0DA;
+  color: #874500;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.evidence-upload input[type="file"]::file-selector-button:hover {
+  background: #FFE0B2;
+}
+
+.evidence-upload input[type="file"]:focus-visible {
+  outline: 2px solid #E68100;
+  outline-offset: 3px;
 }
 
 .evidence-upload small {
   display: block;
-  margin-top: 10px;
-  color: #666666;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 768px) {
-
-  .kuesioner-page {
-    padding: 35px 20px 50px;
-  }
-
-  .kuesioner-header h1 {
-    font-size: 28px;
-  }
-
-  .question-card {
-    padding: 22px;
-  }
-
-  .answer-options {
-    flex-direction: column;
-  }
-
-  .question-navigation button {
-    width: 100%;
-  }
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #F5F8F5;
+  color: #356B40;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 /* =================================
@@ -1836,6 +2103,32 @@ body {
   font-family: var(--font-primary);
   font-size: 36px;
   font-weight: 700;
+
+  /* Animasi lingkaran oranye */
+  animation: successCircle 0.8s ease-out both;
+  transform-origin: center;
+}
+
+/* Animasi lingkaran oranye */
+@keyframes successCircle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.2) rotate(10deg);
+  }
+
+  80% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 .pengajuan-success h1 {
@@ -1858,6 +2151,59 @@ body {
   line-height: 1.6;
 
   color: #666666;
+}
+
+.success-check {
+  display: inline-block;
+  animation: checkAnimation 0.7s ease-out both;
+}
+
+@keyframes checkAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.3) rotate(10deg);
+  }
+
+  80% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* STATUS MENUNGGU VERIFIKASI */
+.pengajuan-success.status-menunggu .success-icon {
+  background: #F7941D;
+}
+
+.pengajuan-success.status-menunggu h1 {
+  color: #D97706;
+}
+
+/* STATUS DITERIMA */
+.pengajuan-success.status-diterima .success-icon {
+  background: #4BB543;
+}
+
+.pengajuan-success.status-diterima h1 {
+  color: #218838;
+}
+
+/* STATUS DITOLAK */
+.pengajuan-success.status-ditolak .success-icon {
+  background: #DC2626;
+}
+
+.pengajuan-success.status-ditolak h1 {
+  color: #B91C1C;
 }
 
 /* =================================
@@ -2526,6 +2872,31 @@ ADMIN LAYOUT DAN SIDEBAR
   min-width: 0;
 }
 
+.grafik-empty {
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+  color: #999999;
+}
+
+.grafik-empty strong {
+  color: #333333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.grafik-empty p {
+  margin: 0;
+  color: #777777;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 /* =====================================
    RESPONSIVE
 ===================================== */
@@ -2601,14 +2972,9 @@ ADMIN LAYOUT DAN SIDEBAR
    HALAMAN DAFTAR PENGAJUAN
 ===================================== */
 
-/* ======================================
-ADMIN - DAFTAR PENGAJUAN
-Tampilan mengikuti wireframe kartu
-====================================== */
-
 .admin-pengajuan {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1500px;
   margin: 0 auto;
   color: #252525;
 }
@@ -3229,6 +3595,11 @@ Tampilan mengikuti wireframe kartu
   background: #dcfce7;
 }
 
+.role-admin {
+  color: #9A3412;
+  background: #FFEDD5;
+}
+
 /* Tombol detail */
 
 .pengguna-detail-button {
@@ -3289,6 +3660,212 @@ Tampilan mengikuti wireframe kartu
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;
+}
+
+/* Tombol tambah admin */
+.pengguna-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pengguna-tambah-admin {
+  padding: 11px 16px;
+  border: none;
+  border-radius: 9px;
+  background: #F7941D;
+  color: #111111;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pengguna-tambah-admin:hover,
+.admin-btn-simpan:hover {
+  background: #E68100;
+}
+
+/* Latar popup */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(17, 17, 17, 0.5);
+}
+
+/* Kotak popup */
+.admin-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 28px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+}
+
+.admin-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-modal-header h2 {
+  margin: 0 0 8px;
+  color: #111111;
+  font-size: 24px;
+}
+
+.admin-modal-header p {
+  margin: 0;
+  color: #666666;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.admin-modal-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: #F5F5F5;
+  color: #444444;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.admin-form-group {
+  margin-bottom: 17px;
+}
+
+.admin-form-group label {
+  display: block;
+  margin-bottom: 7px;
+  color: #222222;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-form-group input,
+.admin-form-group textarea {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #DDDDDD;
+  border-radius: 9px;
+  background: #FFFFFF;
+  color: #111111;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.admin-form-group textarea {
+  resize: vertical;
+}
+
+.admin-form-group input:focus,
+.admin-form-group textarea:focus {
+  outline: none;
+  border-color: #F7941D;
+  box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.12);
+}
+
+.admin-form-error {
+  margin: 10px 0;
+  color: #C62828;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.admin-btn-batal,
+.admin-btn-simpan {
+  padding: 12px 17px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-btn-batal {
+  border: 1px solid #DDDDDD;
+  background: #FFFFFF;
+  color: #333333;
+}
+
+.admin-btn-simpan {
+  border: none;
+  background: #F7941D;
+  color: #111111;
+}
+
+.admin-btn-batal:disabled,
+.admin-btn-simpan:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pengguna-statistik-icon,
+.pengguna-search-icon,
+.pengguna-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pengguna-empty-icon {
+  margin-bottom: 10px;
+  color: #C0C7D2;
+}
+
+.pengguna-tambah-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+@media (max-width: 600px) {
+  .pengguna-heading-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-modal {
+    padding: 22px 18px;
+  }
+
+  .admin-modal-actions>button {
+    flex: 1;
+  }
 }
 
 /* Responsif */
@@ -3409,18 +3986,27 @@ ADMIN - KELOLA KRITERIA
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
 }
 
-.kriteria-nomor {
+/* Ikon golongan asnaf */
+.kriteria-icon {
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  margin-bottom: 18px;
-  border-radius: 10px;
-  background: #fff0e3;
-  color: #e87919;
-  font-size: 15px;
-  font-weight: 700;
+  margin-bottom: 24px;
+  border-radius: 14px;
+  background: #FFF0E1;
+  color: #E68100;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.kriteria-card:hover .kriteria-icon {
+  background: #F7941D;
+  color: #FFFFFF;
+  transform: translateY(-2px);
 }
 
 .kriteria-card h3 {

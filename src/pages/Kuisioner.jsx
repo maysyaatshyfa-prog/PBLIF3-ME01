@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { getQuestions } from "../data/questions";
-import { useNavigate } from "react-router-dom";
 
 const QUESTIONS_PER_PAGE = 5;
 
 function Kuisioner() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const nikPenerima = location.state?.nik;
 
     const [questions, setQuestions] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -15,7 +18,7 @@ function Kuisioner() {
     const [evidence, setEvidence] = useState({});
     const [errorMessage, setErrorMessage] = useState("");
 
-    // Mengambil pertanyaan
+    // Mengambil pertanyaan aktif
     useEffect(() => {
         const data = getQuestions();
 
@@ -26,6 +29,7 @@ function Kuisioner() {
         setQuestions(activeQuestions);
     }, []);
 
+    // Menghitung jumlah halaman dan pertanyaan yang ditampilkan
     const totalPages = Math.ceil(
         questions.length / QUESTIONS_PER_PAGE
     );
@@ -38,18 +42,19 @@ function Kuisioner() {
         startIndex + QUESTIONS_PER_PAGE
     );
 
-    // Menyimpan jawaban
+    // Menyimpan jawaban pengguna
     const handleAnswer = (questionId, value) => {
         setAnswers((prev) => ({
             ...prev,
             [questionId]: value,
         }));
 
-        // Jika jawaban diubah menjadi "Tidak",
-        // hapus bukti yang sebelumnya dipilih
+        // Hapus bukti jika jawaban diubah menjadi "Tidak"
         if (value === "Tidak") {
             setEvidence((prev) => {
-                const updated = { ...prev };
+                const updated = {
+                    ...prev
+                };
                 delete updated[questionId];
                 return updated;
             });
@@ -58,7 +63,7 @@ function Kuisioner() {
         setErrorMessage("");
     };
 
-    // Menyimpan bukti pendukung
+    // Menyimpan bukti pendukung yang dipilih
     const handleEvidence = (questionId, file) => {
         if (!file) return;
 
@@ -70,7 +75,7 @@ function Kuisioner() {
         setErrorMessage("");
     };
 
-    // Cek apakah pertanyaan di halaman sekarang sudah lengkap
+    // Memvalidasi pertanyaan pada halaman saat ini
     const validateCurrentPage = () => {
         const unansweredQuestions = currentQuestions.filter(
             (question) => !answers[question.id]
@@ -78,9 +83,9 @@ function Kuisioner() {
 
         const missingEvidence = currentQuestions.filter(
             (question) =>
-                question.requireEvidence &&
-                answers[question.id] === "Ya" &&
-                !evidence[question.id]
+            question.requireEvidence &&
+            answers[question.id] === "Ya" &&
+            !evidence[question.id]
         );
 
         if (unansweredQuestions.length > 0) {
@@ -133,12 +138,24 @@ function Kuisioner() {
         }
     };
 
+
+
     // Tombol Selesai
-    const handleSubmit = () => {
-        const unansweredQuestions = questions.filter(
+    const handleSubmit = async () => {
+        // memastikan nik tersedia
+        if (!nikPenerima) {
+            setErrorMessage(
+                "NIK calon penerima tidak ditemukan. Silahkan ulangi proses pendaftaran."
+            );
+            return;
+        }
+
+        // memeriksa jawaban yang belum lengkap
+        const unanswerQuestions = questions.filter(
             (question) => !answers[question.id]
         );
 
+         // Memeriksa bukti pendukung yang belum diupload
         const missingEvidence = questions.filter(
             (question) =>
                 question.requireEvidence &&
@@ -146,235 +163,239 @@ function Kuisioner() {
                 !evidence[question.id]
         );
 
-        // Jika masih ada pertanyaan yang belum dijawab
-        if (unansweredQuestions.length > 0) {
-            setErrorMessage(
-                "Masih ada pertanyaan yang belum dijawab. Silakan lengkapi terlebih dahulu."
-            );
+        if (unanswerQuestions.length > 0) {
 
+            setErrorMessage(
+                "Masih ada pertanyaan yang belum dijawab. Silahkan lengkapi terlebih dahulu."
+            );
             return;
         }
 
-        // Jika masih ada bukti yang belum diupload
         if (missingEvidence.length > 0) {
             setErrorMessage(
-                "Masih ada bukti pendukung yang belum diupload. Silakan lengkapi terlebih dahulu."
+                "Masih ada bukti pedukung yang belum di upload. Silahkan lengkapi terlebih dahulu."
             );
-
             return;
         }
+
+        // mengubah jawaban yang ada di react menjadi format yang diterima di backend
+        const jawabanKuesioner = questions.map((question) => ({
+            id_kriteria: Number(question.id),
+            nilai_jawaban: answers[question.id]
+        }));
 
         setErrorMessage("");
 
-        console.log("Jawaban pengguna:", answers);
-        console.log("Bukti pendukung:", evidence);
+        try {
+            const response = await fetch(
+                "http://localhost:5000/api/jawaban-kuesioner", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nik_penerima: nikPenerima,
+                        jawaban: jawabanKuesioner
+                    })
+                }
+            );
 
-        // Setelah semua selesai, pindah ke halaman Pengajuan
-        navigate("/pengajuan");
+            const result = await response.json();
+
+            if (!response.ok) {
+                setErrorMessage(
+                    result.message || "Gagal menyimpan jawaban Kuesioner."
+                );
+                return;
+            }
+
+            alert(
+                result.message || "Jawaban Kuesioner berhasil disimpan."
+            );
+
+
+            // lanjut kehalaman pengajuan setelah jawaban berhasil disimpan
+            navigate("/pengajuan", {
+                state: {
+                    nik: nikPenerima
+                }
+            });
+
+        } catch (error) {
+            console.error(
+                "Gagal menyimpan jawaban kuesioner:",
+                error
+            );
+
+            setErrorMessage(
+                "Tidak dapat terhubung ke backend. pastikan server berjalan."
+            );
+        }
     };
 
+
+
     return (
-        <>
-            <Navbar />
+    <>
+        <Navbar />
 
-            <main className="kuesioner-page">
+        <main className="kuesioner-page">
+            {/* HEADER */}
+            <section className="kuesioner-header">
+                <h1>Kuesioner Kelayakan Mustahiq</h1>
 
-                {/* HEADER */}
-                <section className="kuesioner-header">
-                    <h1>Kuesioner Kelayakan Mustahiq</h1>
+                <p>
+                    Jawablah setiap pertanyaan sesuai dengan
+                    kondisi Anda yang sebenarnya.
+                </p>
 
-                    <p>
-                        Jawablah setiap pertanyaan sesuai dengan
-                        kondisi Anda yang sebenarnya.
-                    </p>
+                <div className="progress-info">
+                    <span>
+                        Halaman {currentPage} dari {totalPages}
+                    </span>
 
-                    <div className="progress-info">
-                        <span>
-                            Halaman {currentPage} dari {totalPages}
-                        </span>
+                    <span>
+                        {questions.length} Pertanyaan
+                    </span>
+                </div>
 
-                        <span>
-                            {questions.length} Pertanyaan
-                        </span>
-                    </div>
-
-                    <div className="progress-bar">
-                        <div
-                            className="progress-fill"
-                            style={{
+                <div className="progress-bar">
+                    <div className="progress-fill" style={{
                                 width: `${
                                     totalPages > 0
                                         ? (currentPage / totalPages) * 100
                                         : 0
                                 }%`,
-                            }}
-                        />
-                    </div>
-                </section>
+                            }} />
+                </div>
+            </section>
 
-                {/* PESAN ERROR */}
-                {errorMessage && (
-                    <div className="question-error">
-                        {errorMessage}
-                    </div>
-                )}
+            {/* POPUP PESAN ERROR */}
+            {errorMessage && (
+            <div className="popup-overlay">
+                <div className="popup-alert" role="alertdialog" aria-modal="true" aria-labelledby="popup-title">
+                    <div className="popup-alert-icon">!</div>
 
-                {/* PERTANYAAN */}
-                <section className="question-container">
+                    <h3 id="popup-title">Perhatian!</h3>
 
-                    {currentQuestions.map((question, index) => (
-                        <div
-                            className="question-card"
-                            key={question.id}
+                    <p>{errorMessage}</p>
+
+                    <button type="button" onClick={()=> setErrorMessage("")}
                         >
-                            <div className="question-number">
-                                Pertanyaan {startIndex + index + 1}
-                            </div>
-
-                            <h3>
-                                {question.question}
-                            </h3>
-
-                            {/* RADIO */}
-                            {question.type === "radio" && (
-                                <div className="answer-options">
-                                    {question.options.map((option) => (
-                                        <label
-                                            key={option}
-                                            className="answer-option"
-                                        >
-                                            <input
-                                                type="radio"
-                                                name={`question-${question.id}`}
-                                                value={option}
-                                                checked={
-                                                    answers[question.id] === option
-                                                }
-                                                onChange={(e) =>
-                                                    handleAnswer(
-                                                        question.id,
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-
-                                            <span>
-                                                {option}
-                                            </span>
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* TEXT */}
-                            {question.type === "text" && (
-                                <input
-                                    type="text"
-                                    className="answer-input"
-                                    value={
-                                        answers[question.id] || ""
-                                    }
-                                    onChange={(e) =>
-                                        handleAnswer(
-                                            question.id,
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="Masukkan jawaban Anda"
-                                />
-                            )}
-
-                            {/* NUMBER */}
-                            {question.type === "number" && (
-                                <input
-                                    type="number"
-                                    className="answer-input"
-                                    value={
-                                        answers[question.id] || ""
-                                    }
-                                    onChange={(e) =>
-                                        handleAnswer(
-                                            question.id,
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="Masukkan nominal"
-                                />
-                            )}
-
-                            {/* BUKTI PENDUKUNG */}
-                            {question.requireEvidence &&
-                                answers[question.id] === "Ya" && (
-                                    <div className="evidence-upload">
-
-                                        <label>
-                                            Bukti Pendukung
-                                        </label>
-
-                                        <p>
-                                            Pertanyaan ini membutuhkan
-                                            bukti pendukung. Silakan
-                                            upload dokumen yang sesuai.
-                                        </p>
-
-                                        <input
-                                            type="file"
-                                            accept=".jpg,.jpeg,.png,.pdf"
-                                            onChange={(e) =>
-                                                handleEvidence(
-                                                    question.id,
-                                                    e.target.files[0]
-                                                )
-                                            }
-                                        />
-
-                                        {evidence[question.id] && (
-                                            <small>
-                                                File dipilih:{" "}
-                                                {evidence[question.id].name}
-                                            </small>
-                                        )}
-                                    </div>
-                                )}
-                        </div>
-                    ))}
-
-                </section>
-
-                {/* NAVIGASI */}
-                <div className="question-navigation">
-
-                    <button
-                        type="button"
-                        onClick={handlePrevious}
-                        disabled={currentPage === 1}
-                    >
-                        Sebelumnya
+                        Mengerti
                     </button>
+                </div>
+            </div>
+            )}
 
-                    {currentPage < totalPages ? (
-                        <button
-                            type="button"
-                            onClick={handleNext}
-                        >
-                            Berikutnya
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                        >
-                            Selesai
-                        </button>
+            {/* DAFTAR PERTANYAAN */}
+            <section className="question-container">
+                {currentQuestions.map((question, index) => (
+                <div className="question-card" key={question.id}>
+                    <div className="question-number">
+                        Pertanyaan {startIndex + index + 1}
+                    </div>
+
+                    <h3>{question.question}</h3>
+
+                    {/* PILIHAN RADIO */}
+                    {question.type === "radio" && (
+                    <div className="answer-options">
+                        {question.options.map((option) => (
+                        <label key={option} className="answer-option">
+                            <input type="radio" name={`question-${question.id}`} value={option} checked={
+                                answers[question.id]===option } onChange={(e)=>
+                            handleAnswer(
+                            question.id,
+                            e.target.value
+                            )
+                            }
+                            />
+
+                            <span>{option}</span>
+                        </label>
+                        ))}
+                    </div>
                     )}
 
+                    {/* JAWABAN TEKS */}
+                    {question.type === "text" && (
+                    <input type="text" className="answer-input" value={answers[question.id] || "" } onChange={(e)=>
+                    handleAnswer(
+                    question.id,
+                    e.target.value
+                    )
+                    }
+                    placeholder="Masukkan jawaban Anda"
+                    />
+                    )}
+
+                    {/* JAWABAN ANGKA */}
+                    {question.type === "number" && (
+                    <input type="number" className="answer-input" value={answers[question.id] || "" } onChange={(e)=>
+                    handleAnswer(
+                    question.id,
+                    e.target.value
+                    )
+                    }
+                    placeholder="Masukkan nominal"
+                    />
+                    )}
+
+                    {/* UPLOAD BUKTI PENDUKUNG */}
+                    {question.requireEvidence &&
+                    answers[question.id] === "Ya" && (
+                    <div className="evidence-upload">
+                        <label>
+                            Bukti Pendukung
+                        </label>
+
+                        <p>
+                            Pertanyaan ini membutuhkan
+                            bukti pendukung. Silakan
+                            upload dokumen yang sesuai.
+                        </p>
+
+                        <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={(e)=>
+                        handleEvidence(
+                        question.id,
+                        e.target.files[0]
+                        )
+                        }
+                        />
+
+                        {evidence[question.id] && (
+                        <small>
+                            File dipilih:{" "}
+                            {evidence[question.id].name}
+                        </small>
+                        )}
+                    </div>
+                    )}
                 </div>
+                ))}
+            </section>
 
-            </main>
+            {/* TOMBOL NAVIGASI */}
+            <div className="question-navigation">
+                <button type="button" onClick={handlePrevious} disabled={currentPage===1}>
+                    Sebelumnya
+                </button>
 
-            <Footer />
-        </>
+                {currentPage < totalPages ? ( <button type="button" onClick={handleNext}>
+                    Berikutnya
+                    </button>
+                    ) : (
+                    <button type="button" onClick={handleSubmit}>
+                        Selesai
+                    </button>
+                    )}
+            </div>
+        </main>
+
+        <Footer />
+    </>
     );
-}
+    }
 
-export default Kuisioner;
+    export default Kuisioner;

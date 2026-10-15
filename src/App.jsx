@@ -1,5 +1,11 @@
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
 import AdminLayout from "./components/admin/AdminLayout";
 
 // Halaman utama
@@ -31,6 +37,9 @@ import PenyaluranDana from "./pages/admin/PenyaluranDana";
 function App() {
   return (
     <BrowserRouter>
+      {/* Reset scroll setiap pathname berubah */}
+      <ScrollToTop />
+
       <Routes>
         {/* Halaman utama */}
         <Route path="/" element={<LandingPage />} />
@@ -40,23 +49,120 @@ function App() {
 
         {/* Login dan registrasi */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register/options" element={<RegisterOptionsPage />} />
-        <Route path="/register/muzakki" element={<RegisterMuzakkiPage />} />
-        <Route path="/register/mustahiq" element={<FormDataDiri />} />
+
+        <Route
+          path="/register/options"
+          element={<RegisterOptionsPage />}
+        />
+
+        <Route
+          path="/register/muzakki"
+          element={<RegisterMuzakkiPage />}
+        />
+
+        <Route
+          path="/register/mustahiq"
+          element={<FormDataDiri />}
+        />
+
         <Route path="/kuisioner" element={<Kuisioner />} />
         <Route path="/pengajuan" element={<Pengajuan />} />
 
         {/* Dashboard admin */}
-        <Route path="/admin" element={<AdminLayout><Beranda /></AdminLayout>} />
-        <Route path="/admin/pengajuan" element={<AdminLayout><DaftarPengajuan /></AdminLayout>} />
-        <Route path="/admin/pengajuan/:id" element={<AdminLayout><DetailPengajuan /></AdminLayout>} />
-        <Route path="/admin/pengguna" element={<AdminLayout><DaftarPengguna /></AdminLayout>} />
-        <Route path="/admin/kriteria" element={<AdminLayout><KelolaKriteria /></AdminLayout>} />
-        <Route path="/admin/kriteria/:asnaf" element={<AdminLayout><DetailKriteria /></AdminLayout>} />
-        <Route path="/admin/transaksi" element={<AdminLayout><KelolaTransaksi /></AdminLayout>} />
-        <Route path="/admin/kegiatan" element={<AdminLayout><KelolaKegiatan /></AdminLayout>} />
-        <Route path="/admin/rekap-dana" element={<AdminLayout><RekapDana /></AdminLayout>} />
-        <Route path="/admin/penyaluran-dana" element={<AdminLayout><PenyaluranDana /></AdminLayout>} />
+        <Route
+          path="/admin/dashboard"
+          element={<Navigate to="/admin" replace />}
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminLayout>
+              <Beranda />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/pengajuan"
+          element={
+            <AdminLayout>
+              <DaftarPengajuan />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/pengajuan/:id"
+          element={
+            <AdminLayout>
+              <DetailPengajuan />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/pengguna"
+          element={
+            <AdminLayout>
+              <DaftarPengguna />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/kriteria"
+          element={
+            <AdminLayout>
+              <KelolaKriteria />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/kriteria/:asnaf"
+          element={
+            <AdminLayout>
+              <DetailKriteria />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/transaksi"
+          element={
+            <AdminLayout>
+              <KelolaTransaksi />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/kegiatan"
+          element={
+            <AdminLayout>
+              <KelolaKegiatan />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/rekap-dana"
+          element={
+            <AdminLayout>
+              <RekapDana />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/penyaluran-dana"
+          element={
+            <AdminLayout>
+              <PenyaluranDana />
+            </AdminLayout>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
