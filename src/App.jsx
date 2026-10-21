@@ -7,6 +7,7 @@ import {
 
 import ScrollToTop from "./components/ScrollToTop";
 import AdminLayout from "./components/admin/AdminLayout";
+import SidebarPenerima from "./components/SidebarPenerima";
 
 // Halaman utama
 import LandingPage from "./pages/LandingPage";
@@ -21,6 +22,9 @@ import RegisterMuzakkiPage from "./pages/RegisterMuzakkiPage";
 import FormDataDiri from "./pages/FormDataDiri";
 import Kuisioner from "./pages/Kuisioner";
 import Pengajuan from "./pages/Pengajuan";
+import DashboardPenerima from "./pages/DashboardPenerima";
+import RiwayatBantuan from "./pages/RiwayatBantuan";
+import ProfilPenerima from "./pages/ProfilPenerima";
 
 // Halaman admin
 import Beranda from "./pages/admin/Beranda";
@@ -49,7 +53,7 @@ function App() {
 
         {/* Login dan registrasi */}
         <Route path="/login" element={<LoginPage />} />
-
+       
         <Route
           path="/register/options"
           element={<RegisterOptionsPage />}
@@ -67,7 +71,11 @@ function App() {
 
         <Route path="/kuisioner" element={<Kuisioner />} />
         <Route path="/pengajuan" element={<Pengajuan />} />
-
+        <Route path="/pengajuan/:token" element={<Pengajuan />} /> 
+        <Route path="/sidebarpenerima" element={<SidebarPenerima />} />
+        <Route path="/dashboardpenerima" element={<DashboardPenerima />}/>
+        <Route path="/riwayatbantuan" element={<RiwayatBantuan />}/>
+        <Route path="/profilpenerima" element={<ProfilPenerima />}/>
         {/* Dashboard admin */}
         <Route
           path="/admin/dashboard"
