@@ -5011,3 +5011,385 @@ ADMIN - DETAIL PEMERIKSAAN PENGAJUAN
     width: 100%;
   }
 }
+
+/* ==============================
+   DETAIL KRITERIA
+============================== */
+
+.detail-kriteria-page {
+  width: 100%;
+  color: #1f2937;
+}
+
+.kriteria-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.kriteria-breadcrumb a {
+  color: #f97316;
+  text-decoration: none;
+}
+
+.kriteria-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.detail-kriteria-page .kriteria-header {
+  margin-bottom: 24px;
+}
+
+.detail-kriteria-page .kriteria-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.detail-kriteria-page .kriteria-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.kriteria-summary {
+  width: fit-content;
+  min-width: 180px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.kriteria-summary p {
+  margin: 0 0 8px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.kriteria-summary strong {
+  font-size: 28px;
+}
+
+.kriteria-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.kriteria-search {
+  flex: 1;
+  max-width: 420px;
+}
+
+.kriteria-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.kriteria-search input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+}
+
+.detail-kriteria-page .kriteria-button {
+  display: inline-block;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f97316;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.detail-kriteria-page .kriteria-button:hover {
+  background: #ea580c;
+}
+
+.kriteria-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.kriteria-form h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.kriteria-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kriteria-form input,
+.kriteria-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.kriteria-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.kriteria-form-actions,
+.kriteria-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.kriteria-form-actions {
+  margin-top: 8px;
+}
+
+.kriteria-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.kriteria-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.kriteria-table th,
+.kriteria-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.kriteria-table th {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+}
+
+.kriteria-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.kriteria-empty {
+  padding: 28px 16px !important;
+  color: #6b7280;
+  text-align: center;
+}
+
+.kriteria-action {
+  display: inline-block;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kriteria-action.detail {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.kriteria-action.edit {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.kriteria-action.delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.kriteria-action:hover {
+  filter: brightness(0.96);
+}
+
+@media (max-width: 640px) {
+  .kriteria-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .kriteria-search {
+    max-width: none;
+  }
+
+  .detail-kriteria-page .kriteria-button {
+    align-self: flex-start;
+  }
+}
+
+.kriteria-table-wrapper {
+  margin-top: 12px;
+}
+
+/* ==============================
+   DETAIL ITEM KRITERIA
+============================== */
+
+.detail-item-page {
+  width: 100%;
+  color: #1f2937;
+}
+
+.detail-item-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.detail-item-breadcrumb a {
+  color: #f97316;
+  text-decoration: none;
+}
+
+.detail-item-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.detail-item-header {
+  margin-bottom: 24px;
+}
+
+.detail-item-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.detail-item-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.detail-item-card {
+  max-width: 760px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 3%);
+}
+
+.detail-item-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.detail-item-field span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.detail-item-field strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.detail-item-empty {
+  margin-top: 8px;
+  padding: 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.detail-item-empty p {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.detail-item-empty span {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.detail-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.detail-item-back,
+.detail-item-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.detail-item-back {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.detail-item-return {
+  background: #f97316;
+  color: #ffffff;
+}
+
+.detail-item-back:hover {
+  background: #e5e7eb;
+}
+
+.detail-item-return:hover {
+  background: #ea580c;
+}
+
+@media (max-width: 640px) {
+  .detail-item-card {
+    padding: 18px;
+  }
+
+  .detail-item-header h1 {
+    font-size: 24px;
+  }
+}
