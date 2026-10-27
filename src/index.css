@@ -4069,9 +4069,7 @@ ADMIN - KELOLA KRITERIA
   }
 }
 
-/* ================================
-ADMIN - KELOLA TRANSAKSI
-================================ */
+/* ADMIN - KELOLA TRANSAKSI */
 
 .admin-transaksi {
   width: 100%;
@@ -4096,19 +4094,28 @@ ADMIN - KELOLA TRANSAKSI
   line-height: 1.7;
 }
 
-.transaksi-ringkasan {
+/* Ringkasan transaksi */
+
+.transaksi-statistik {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.transaksi-stat-card {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-bottom: 28px;
+  min-width: 0;
   padding: 24px;
   background: #fff;
-  border: 1px solid #eeeeee;
+  border: 1px solid #eee;
   border-radius: 16px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
 }
 
-.transaksi-ringkasan-icon {
+.transaksi-stat-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4118,38 +4125,41 @@ ADMIN - KELOLA TRANSAKSI
   border-radius: 14px;
   background: #fff0e3;
   color: #e87919;
-  font-size: 19px;
-  font-weight: 700;
 }
 
-.transaksi-ringkasan h3 {
-  margin: 0 0 6px;
-  color: #292929;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.transaksi-ringkasan p {
-  margin: 0;
+.transaksi-stat-card p {
+  margin: 0 0 7px;
   color: #777;
   font-size: 13px;
-  line-height: 1.6;
 }
+
+.transaksi-stat-card h2 {
+  margin: 0;
+  color: #292929;
+  font-size: 27px;
+  font-weight: 700;
+}
+
+.transaksi-stat-card span {
+  display: block;
+  margin-top: 7px;
+  color: #858585;
+  font-size: 12px;
+}
+
+/* Daftar transaksi */
 
 .transaksi-table-card {
   overflow: hidden;
   background: #fff;
-  border: 1px solid #eeeeee;
+  border: 1px solid #eee;
   border-radius: 16px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
 }
 
 .transaksi-table-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 24px;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #eee;
 }
 
 .transaksi-table-header h2 {
@@ -4165,6 +4175,132 @@ ADMIN - KELOLA TRANSAKSI
   font-size: 13px;
   line-height: 1.6;
 }
+
+.transaksi-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 24px;
+}
+
+.transaksi-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 420px;
+  padding: 11px 13px;
+  color: #858585;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+}
+
+.transaksi-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: #292929;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+}
+
+.transaksi-search:focus-within {
+  border-color: #e87919;
+}
+
+.transaksi-toolbar select {
+  min-width: 150px;
+  padding: 11px 12px;
+  color: #444;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+  font-size: 13px;
+  outline-color: #e87919;
+}
+
+/* Tabel */
+
+.transaksi-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.transaksi-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.transaksi-table th {
+  padding: 14px 18px;
+  color: #666;
+  background: #fafafa;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.transaksi-table td {
+  padding: 16px 18px;
+  color: #444;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.transaksi-table tbody tr:hover {
+  background: #fffaf6;
+}
+
+.transaksi-status {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-berhasil {
+  color: #23834b;
+  background: #e8f7ed;
+}
+
+.status-menunggu {
+  color: #b76a16;
+  background: #fff0d9;
+}
+
+.status-dibatalkan {
+  color: #c0392b;
+  background: #fdecea;
+}
+
+.transaksi-detail-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 11px;
+  color: #d96b13;
+  background: #fff0e3;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.transaksi-detail-button:hover {
+  background: #ffe2c7;
+}
+
+/* Tampilan kosong */
 
 .transaksi-empty {
   display: flex;
@@ -4183,10 +4319,9 @@ ADMIN - KELOLA TRANSAKSI
   width: 58px;
   height: 58px;
   margin-bottom: 16px;
-  border-radius: 50%;
-  background: #fff0e3;
   color: #e87919;
-  font-size: 30px;
+  background: #fff0e3;
+  border-radius: 50%;
 }
 
 .transaksi-empty h3 {
@@ -4203,13 +4338,120 @@ ADMIN - KELOLA TRANSAKSI
   line-height: 1.7;
 }
 
+/* Modal detail */
+
+.transaksi-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.transaksi-modal {
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.transaksi-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.transaksi-modal-header h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.transaksi-modal-close {
+  color: #666;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 28px;
+}
+
+.transaksi-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 0 18px;
+}
+
+.transaksi-modal-body div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.transaksi-modal-body span {
+  color: #858585;
+  font-size: 12px;
+}
+
+.transaksi-modal-body strong {
+  color: #292929;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.transaksi-modal-button {
+  width: 100%;
+  padding: 12px;
+  color: #fff;
+  background: #e87919;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.transaksi-modal-button:hover {
+  background: #cf6710;
+}
+
+/* Responsif */
+
+@media (max-width: 768px) {
+  .transaksi-statistik {
+    grid-template-columns: 1fr;
+  }
+
+  .transaksi-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .transaksi-search {
+    max-width: none;
+  }
+
+  .transaksi-toolbar select {
+    width: 100%;
+  }
+}
+
 @media (max-width: 600px) {
   .transaksi-header h1 {
     font-size: 24px;
   }
 
-  .transaksi-ringkasan {
-    align-items: flex-start;
+  .transaksi-stat-card {
     padding: 18px;
   }
 
@@ -4217,11 +4459,18 @@ ADMIN - KELOLA TRANSAKSI
     padding: 18px;
   }
 
+  .transaksi-toolbar {
+    padding: 16px;
+  }
+
   .transaksi-empty {
     min-height: 240px;
   }
-}
 
+  .transaksi-modal {
+    padding: 18px;
+  }
+}
 /* =====================================
 ADMIN - KELOLA KEGIATAN
 ===================================== */
@@ -5009,5 +5258,1244 @@ ADMIN - DETAIL PEMERIKSAAN PENGAJUAN
 
   .detail-token-actions button {
     width: 100%;
+  }
+}
+
+/* ==============================
+   DETAIL KRITERIA
+============================== */
+
+.detail-kriteria-page {
+  width: 100%;
+  color: #1f2937;
+}
+
+.kriteria-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.kriteria-breadcrumb a {
+  color: #f97316;
+  text-decoration: none;
+}
+
+.kriteria-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.detail-kriteria-page .kriteria-header {
+  margin-bottom: 24px;
+}
+
+.detail-kriteria-page .kriteria-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.detail-kriteria-page .kriteria-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.kriteria-summary {
+  width: fit-content;
+  min-width: 180px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.kriteria-summary p {
+  margin: 0 0 8px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.kriteria-summary strong {
+  font-size: 28px;
+}
+
+.kriteria-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.kriteria-search {
+  flex: 1;
+  max-width: 420px;
+}
+
+.kriteria-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.kriteria-search input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+}
+
+.detail-kriteria-page .kriteria-button {
+  display: inline-block;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f97316;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.detail-kriteria-page .kriteria-button:hover {
+  background: #ea580c;
+}
+
+.kriteria-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.kriteria-form h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.kriteria-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kriteria-form input,
+.kriteria-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.kriteria-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.kriteria-form-actions,
+.kriteria-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.kriteria-form-actions {
+  margin-top: 8px;
+}
+
+.kriteria-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.kriteria-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.kriteria-table th,
+.kriteria-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.kriteria-table th {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+}
+
+.kriteria-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.kriteria-empty {
+  padding: 28px 16px !important;
+  color: #6b7280;
+  text-align: center;
+}
+
+.kriteria-action {
+  display: inline-block;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kriteria-action.detail {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.kriteria-action.edit {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.kriteria-action.delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.kriteria-action:hover {
+  filter: brightness(0.96);
+}
+
+@media (max-width: 640px) {
+  .kriteria-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .kriteria-search {
+    max-width: none;
+  }
+
+  .detail-kriteria-page .kriteria-button {
+    align-self: flex-start;
+  }
+}
+
+.kriteria-table-wrapper {
+  margin-top: 12px;
+}
+
+/* ==============================
+   DETAIL ITEM KRITERIA
+============================== */
+
+.detail-item-page {
+  width: 100%;
+  color: #1f2937;
+}
+
+.detail-item-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.detail-item-breadcrumb a {
+  color: #f97316;
+  text-decoration: none;
+}
+
+.detail-item-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.detail-item-header {
+  margin-bottom: 24px;
+}
+
+.detail-item-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.detail-item-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.detail-item-card {
+  max-width: 760px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 3%);
+}
+
+.detail-item-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.detail-item-field span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.detail-item-field strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.detail-item-empty {
+  margin-top: 8px;
+  padding: 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.detail-item-empty p {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.detail-item-empty span {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.detail-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.detail-item-back,
+.detail-item-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.detail-item-back {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.detail-item-return {
+  background: #f97316;
+  color: #ffffff;
+}
+
+.detail-item-back:hover {
+  background: #e5e7eb;
+}
+
+.detail-item-return:hover {
+  background: #ea580c;
+}
+
+@media (max-width: 640px) {
+  .detail-item-card {
+    padding: 18px;
+  }
+
+  .detail-item-header h1 {
+    font-size: 24px;
+  }
+}
+
+
+/* Toolbar dan tombol pada halaman Detail Kriteria */
+.detail-kriteria-page .kriteria-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-kriteria-page .kriteria-button-tambah {
+  width: auto;
+  min-width: 0;
+  padding: 9px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.detail-kriteria-page .kriteria-table th:last-child,
+.detail-kriteria-page .kriteria-table td:last-child {
+  min-width: 175px;
+  text-align: center;
+}
+
+.detail-kriteria-page .kriteria-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.detail-kriteria-page .kriteria-action {
+  width: auto;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Overlay popup Detail Kriteria */
+.kriteria-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.55);
+  box-sizing: border-box;
+}
+
+.kriteria-modal {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  background: #fff;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.kriteria-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.kriteria-modal-header h2 {
+  margin: 0;
+  color: #222;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.kriteria-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #222;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.kriteria-modal-close:hover {
+  background: #f1f1f1;
+}
+
+.kriteria-modal-field {
+  margin-bottom: 20px;
+}
+
+.kriteria-modal-field span {
+  display: block;
+  margin-bottom: 6px;
+  color: #666;
+  font-size: 13px;
+}
+
+.kriteria-modal-field strong {
+  display: block;
+  color: #222;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.kriteria-modal-field p {
+  margin: 8px 0 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.kriteria-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+  .detail-kriteria-page .kriteria-toolbar {
+    align-items: stretch;
+  }
+
+  .detail-kriteria-page .kriteria-button-tambah {
+    align-self: flex-start;
+  }
+
+  .detail-kriteria-page .kriteria-table-wrapper {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .kriteria-modal {
+    padding: 18px;
+  }
+}
+
+
+
+/* ==============================
+   FORM BUILDER KUESIONER
+   ============================== */
+
+.form-kriteria-page {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+  color: #252525;
+}
+
+.form-kriteria-page .kriteria-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+
+.form-kriteria-page .kriteria-breadcrumb button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #b85b17;
+  font: inherit;
+  cursor: pointer;
+}
+
+.form-kriteria-heading {
+  margin-bottom: 24px;
+  padding: 26px;
+  border: 1px solid #e8e3df;
+  border-top: 6px solid #e87524;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.form-kriteria-eyebrow {
+  margin: 0 0 8px;
+  color: #b85b17;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.form-kriteria-heading h1 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  line-height: 1.3;
+}
+
+.form-kriteria-heading > p:last-child {
+  margin: 0;
+  color: #686868;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.form-kriteria-info {
+  margin-bottom: 20px;
+  padding: 22px;
+  border: 1px solid #e8e3df;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.form-kriteria-info label,
+.builder-field > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-kriteria-info input,
+.builder-field input,
+.builder-field textarea,
+.builder-field select,
+.builder-answer-preview > input,
+.builder-answer-preview > textarea,
+.builder-answer-preview > select {
+  width: 100%;
+  max-width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d8d8d8;
+  border-radius: 7px;
+  background: #fff;
+  color: #252525;
+  font: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-kriteria-info input[readonly] {
+  background: #f6f6f6;
+}
+
+.form-kriteria-info > p {
+  margin: 10px 0 0;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.builder-question-card {
+  margin-bottom: 18px;
+  padding: 24px;
+  border: 1px solid #e6e1dc;
+  border-left: 5px solid #e87524;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.035);
+}
+
+.builder-question-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.builder-question-number {
+  color: #b85b17;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.builder-question-move {
+  display: flex;
+  gap: 6px;
+}
+
+.builder-question-move button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.builder-question-move button:disabled {
+  color: #bbb;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+.builder-field {
+  margin-bottom: 20px;
+}
+
+.builder-field input:focus,
+.builder-field textarea:focus,
+.builder-field select:focus {
+  outline: 2px solid rgba(232, 117, 36, 0.2);
+  border-color: #e87524;
+}
+
+.builder-field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.builder-help {
+  margin: -2px 0 8px;
+  color: #777;
+  font-size: 12px;
+}
+
+.builder-answer-preview {
+  margin-top: 6px;
+  padding: 18px;
+  border: 1px dashed #d8d0ca;
+  border-radius: 8px;
+  background: #faf9f8;
+}
+
+.builder-preview-label {
+  display: block;
+  margin-bottom: 14px;
+  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.builder-answer-preview input:disabled,
+.builder-answer-preview textarea:disabled,
+.builder-answer-preview select:disabled {
+  color: #777;
+  background: #f3f3f3;
+  cursor: not-allowed;
+}
+
+.builder-preview-options {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.builder-preview-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #444;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.builder-preview-options input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #e87524;
+  flex-shrink: 0;
+}
+
+.builder-file-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.builder-file-preview > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #fff0e5;
+  color: #b85b17;
+  font-size: 24px;
+}
+
+.builder-file-preview strong {
+  font-size: 13px;
+}
+
+.builder-file-preview p {
+  margin: 4px 0 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.builder-scale-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 360px;
+}
+
+.builder-scale-preview span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  background: #fff;
+  color: #444;
+  font-size: 13px;
+}
+
+.builder-question-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eee;
+}
+
+.builder-required {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #444;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.builder-required input {
+  width: 16px;
+  height: 16px;
+  accent-color: #e87524;
+}
+
+.builder-question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.builder-question-actions button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.builder-question-actions button:hover {
+  background: #f5f5f5;
+}
+
+.builder-question-actions .builder-delete-button {
+  border-color: #f0caca;
+  color: #b42318;
+}
+
+.builder-add-question {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px;
+  border: 1px dashed #d9a17d;
+  border-radius: 9px;
+  background: #fffaf6;
+  color: #a64d12;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.builder-add-question:hover {
+  background: #fff0e5;
+}
+
+.builder-add-question span {
+  font-size: 20px;
+}
+
+.builder-error {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border: 1px solid #efb5b5;
+  border-radius: 7px;
+  background: #fff3f3;
+  color: #a61b1b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.builder-submit-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.builder-submit-actions button {
+  width: auto;
+  min-width: 110px;
+  padding: 11px 18px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.builder-cancel-button {
+  border: 1px solid #d5d5d5;
+  background: #fff;
+  color: #333;
+}
+
+.builder-save-button {
+  border: 1px solid #c85e16;
+  background: #e87524;
+  color: #fff;
+}
+
+.builder-save-button:hover {
+  background: #cc611b;
+}
+
+@media (max-width: 600px) {
+  .form-kriteria-heading,
+  .form-kriteria-info,
+  .builder-question-card {
+    padding: 18px;
+  }
+
+  .form-kriteria-heading h1 {
+    font-size: 22px;
+  }
+
+  .builder-question-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .builder-submit-actions {
+    flex-direction: column-reverse;
+  }
+
+  .builder-submit-actions button {
+    width: 100%;
+  }
+}
+
+/* ================================
+   DAFTAR CALON MUSTAHIK
+================================ */
+
+.daftar-pengajuan-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 0 36px;
+  color: #252525;
+  box-sizing: border-box;
+}
+
+.daftar-pengajuan-page *,
+.daftar-pengajuan-page *::before,
+.daftar-pengajuan-page *::after {
+  box-sizing: border-box;
+}
+
+/* Header */
+
+.daftar-pengajuan-header {
+  margin-bottom: 28px;
+}
+
+.daftar-pengajuan-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #202020;
+}
+
+.daftar-pengajuan-header p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #777;
+}
+
+/* Pencarian dan filter */
+
+.pengajuan-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 190px 160px;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+}
+
+.pengajuan-toolbar input,
+.pengajuan-toolbar select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 13px;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+  background: #fff;
+  color: #303030;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pengajuan-toolbar input::placeholder {
+  color: #a0a0a0;
+}
+
+.pengajuan-toolbar input:focus,
+.pengajuan-toolbar select:focus {
+  border-color: #e87924;
+  box-shadow: 0 0 0 3px rgba(232, 121, 36, 0.12);
+}
+
+/* Jumlah data */
+
+.pengajuan-total {
+  margin: 0 0 16px;
+  color: #777;
+  font-size: 13px;
+}
+
+/* Grid kartu */
+
+
+.pengajuan-card-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.pengajuan-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.025);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pengajuan-card:hover {
+  border-color: #f0c6a6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+
+.pengajuan-label {
+  margin-bottom: 7px;
+  color: #858585;
+  font-size: 12px;
+}
+
+.pengajuan-nomor {
+  margin-bottom: 15px;
+  color: #d96516;
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pengajuan-card h2 {
+  margin: 0 0 8px;
+  color: #292929;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.pengajuan-tanggal {
+  margin: 0 0 15px;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Status */
+
+.pengajuan-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 22px;
+  padding: 6px 11px;
+  border: 1px solid #f1dfc5;
+  border-radius: 20px;
+  background: #fff6e9;
+  color: #99601e;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Tombol detail */
+
+.pengajuan-detail-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: auto;
+  padding: 10px 15px;
+  border: 1px solid #e87924;
+  border-radius: 8px;
+  background: #e87924;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.pengajuan-detail-button:hover {
+  border-color: #cb6216;
+  background: #cb6216;
+}
+
+.pengajuan-detail-button:focus-visible {
+  outline: 3px solid rgba(232, 121, 36, 0.3);
+  outline-offset: 3px;
+}
+
+/* Kondisi kosong, loading, dan error */
+
+.pengajuan-empty {
+  padding: 48px 20px;
+  border: 1px dashed #dedede;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+}
+
+.pengajuan-empty h3 {
+  margin: 0 0 8px;
+  color: #333;
+  font-size: 16px;
+}
+
+.pengajuan-empty p {
+  margin: 0;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.daftar-pengajuan-page > p[role="alert"] {
+  padding: 14px 16px;
+  border: 1px solid #f0caca;
+  border-radius: 8px;
+  background: #fff4f4;
+  color: #a52d2d;
+  font-size: 13px;
+}
+
+/* Tablet dan layar kecil */
+
+@media (max-width: 900px) {
+  .pengajuan-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(140px, 0.7fr);
+  }
+
+  .pengajuan-toolbar input {
+    grid-column: 1 / -1;
+  }
+
+  .pengajuan-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .daftar-pengajuan-page {
+    padding-top: 4px;
+  }
+
+  .daftar-pengajuan-header {
+    margin-bottom: 20px;
+  }
+
+  .daftar-pengajuan-header h1 {
+    font-size: 23px;
+  }
+
+  .pengajuan-toolbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .pengajuan-toolbar input {
+    grid-column: auto;
+  }
+
+  .pengajuan-card {
+    padding: 18px;
   }
 }
