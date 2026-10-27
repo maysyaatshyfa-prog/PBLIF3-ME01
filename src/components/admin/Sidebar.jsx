@@ -3,7 +3,7 @@ import zakataraLogo from "../../assets/zakatara-logo.png";
 
 const menu = [
   { nama: "Beranda", path: "/admin" },
-  { nama: "Daftar Pengajuan", path: "/admin/pengajuan" },
+  { nama: "Daftar Pengajuan", path: "/admin/daftar-pengajuan" },
   { nama: "Daftar Pengguna", path: "/admin/pengguna" },
   { nama: "Kelola Kriteria", path: "/admin/kriteria" },
   { nama: "Kelola Transaksi", path: "/admin/transaksi" },

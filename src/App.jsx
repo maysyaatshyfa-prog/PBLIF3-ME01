@@ -87,7 +87,7 @@ function App() {
 
         {/* Daftar pengajuan */}
         <Route
-          path="/admin/pengajuan"
+          path="/admin/daftar-pengajuan"
           element={
             <AdminLayout>
               <DaftarPengajuan />
@@ -96,7 +96,7 @@ function App() {
         />
 
         <Route
-          path="/admin/pengajuan/:id"
+          path="/admin/daftar-pengajuan/:id"
           element={
             <AdminLayout>
               <DetailPengajuan />
