@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 const NAMA_ASNAF = {
@@ -51,6 +51,7 @@ function DetailKriteria() {
     const dataBaru = dataKriteria.filter((item) => item.id !== id);
 
     setDataKriteria(dataBaru);
+
     localStorage.setItem(
       `kriteria-${asnaf}`,
       JSON.stringify(dataBaru)
@@ -168,114 +169,62 @@ function DetailKriteria() {
         </table>
       </div>
 
-      {itemDetail && (
-        <div
-          className="kriteria-modal-overlay"
-          onClick={() => setItemDetail(null)}
-        >
-          <section
-            className="kriteria-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="judul-detail-kriteria"
-            onClick={(event) => event.stopPropagation()}
+      {itemDetail &&
+        createPortal(
+          <div
+            className="kriteria-modal-overlay"
+            onClick={() => setItemDetail(null)}
           >
-            <div className="kriteria-modal-header">
-              <h2 id="judul-detail-kriteria">Detail Kriteria</h2>
-
-              <button
-                type="button"
-                className="kriteria-modal-close"
-                onClick={() => setItemDetail(null)}
-                aria-label="Tutup detail"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="kriteria-modal-field">
-              <span>Golongan Asnaf</span>
-              <strong>{namaAsnaf}</strong>
-            </div>
-
-            <div className="kriteria-modal-field">
-              <span>Kode Kriteria</span>
-              <strong>{itemDetail.kode}</strong>
-            </div>
-
-            <div className="kriteria-modal-field">
-              <span>Pertanyaan</span>
-              <p>{itemDetail.pertanyaan}</p>
-            </div>
-
-            <button
-              type="button"
-              className="kriteria-button"
-              onClick={() => setItemDetail(null)}
+            <section
+              className="kriteria-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="judul-detail-kriteria"
+              onClick={(event) => event.stopPropagation()}
             >
-              Tutup
-            </button>
-          </section>
-        </div>
-      )}
+              <div className="kriteria-modal-header">
+                <h2 id="judul-detail-kriteria">
+                  Detail Kriteria
+                </h2>
 
-      <style>{`
-        .detail-kriteria-page .kriteria-toolbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
+                <button
+                  type="button"
+                  className="kriteria-modal-close"
+                  onClick={() => setItemDetail(null)}
+                  aria-label="Tutup detail"
+                >
+                  ×
+                </button>
+              </div>
 
-        .detail-kriteria-page .kriteria-button-tambah {
-          width: auto;
-          min-width: 0;
-          padding: 9px 14px;
-          font-size: 13px;
-          line-height: 1.4;
-          white-space: nowrap;
-          flex-shrink: 0;
-        }
+              <div className="kriteria-modal-field">
+                <span>Golongan Asnaf</span>
+                <strong>{namaAsnaf}</strong>
+              </div>
 
-        .detail-kriteria-page .kriteria-table th:last-child,
-        .detail-kriteria-page .kriteria-table td:last-child {
-          min-width: 175px;
-          text-align: center;
-        }
+              <div className="kriteria-modal-field">
+                <span>Kode Kriteria</span>
+                <strong>{itemDetail.kode || "-"}</strong>
+              </div>
 
-        .detail-kriteria-page .kriteria-actions {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
+              <div className="kriteria-modal-field">
+                <span>Pertanyaan</span>
+                <p>{itemDetail.pertanyaan || "-"}</p>
+              </div>
 
-        .detail-kriteria-page .kriteria-action {
-          width: auto;
-          min-width: 0;
-          padding: 6px 10px;
-          font-size: 12px;
-          line-height: 1.4;
-          border-radius: 6px;
-          cursor: pointer;
-        }
-
-        @media (max-width: 600px) {
-          .detail-kriteria-page .kriteria-toolbar {
-            align-items: stretch;
-          }
-
-          .detail-kriteria-page .kriteria-button-tambah {
-            align-self: flex-start;
-          }
-
-          .detail-kriteria-page .kriteria-table-wrapper {
-            overflow-x: auto;
-          }
-        }
-      `}</style>
+              <div className="kriteria-modal-footer">
+                <button
+                  type="button"
+                  className="kriteria-button"
+                  onClick={() => setItemDetail(null)}
+                >
+                  Tutup
+                </button>
+              </div>
+            </section>
+          </div>,
+          document.body
+        )}
     </section>
   );
 }
