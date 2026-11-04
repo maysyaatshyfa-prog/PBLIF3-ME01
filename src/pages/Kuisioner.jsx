@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
@@ -39,18 +39,16 @@ function Kuisioner() {
 
     const nikPenerima = location.state?.nik;
 
-    const [questions, setQuestions] = useState([]);
+    // Mengambil pertanyaan aktif saat komponen pertama kali dimuat.
+    const [questions] = useState(() =>
+        getQuestions().filter((question) => question.active)
+    );
+
     const [currentPage, setCurrentPage] = useState(1);
     const [answers, setAnswers] = useState({});
     const [evidence, setEvidence] = useState({});
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Mengambil pertanyaan aktif.
-    useEffect(() => {
-        const data = getQuestions();
-        setQuestions(data.filter((question) => question.active));
-    }, []);
 
     const totalPages = Math.ceil(
         questions.length / QUESTIONS_PER_PAGE
@@ -119,6 +117,7 @@ function Kuisioner() {
                 "Masih ada pertanyaan yang belum dijawab. " +
                 "Silakan lengkapi terlebih dahulu."
             );
+
             return false;
         }
 
@@ -126,6 +125,7 @@ function Kuisioner() {
             setErrorMessage(
                 "Ada bukti pendukung yang belum diunggah."
             );
+
             return false;
         }
 
@@ -162,140 +162,144 @@ function Kuisioner() {
     };
 
     // Mengirim jawaban dan bukti pendukung.
-    
-const handleSubmit = async () => {
-    if (isSubmitting) return;
+    const handleSubmit = async () => {
+        if (isSubmitting) return;
 
-    if (!nikPenerima) {
-        setErrorMessage(
-            "NIK calon penerima tidak ditemukan. " +
-            "Silakan ulangi proses pendaftaran."
-        );
-        return;
-    }
-
-    const unansweredQuestions = questions.filter((question) => {
-        const answer = answers[question.id];
-
-        return (
-            answer === undefined ||
-            answer === null ||
-            String(answer).trim() === ""
-        );
-    });
-
-    const missingEvidence = questions.filter(
-        (question) =>
-            question.requireEvidence &&
-            answers[question.id] === "Ya" &&
-            !evidence[question.id]
-    );
-
-    if (unansweredQuestions.length > 0) {
-        setErrorMessage(
-            "Masih ada pertanyaan yang belum dijawab. " +
-            "Silakan lengkapi terlebih dahulu."
-        );
-        return;
-    }
-
-    if (missingEvidence.length > 0) {
-        setErrorMessage(
-            "Masih ada bukti pendukung yang belum diunggah."
-        );
-        return;
-    }
-
-    const jawabanKuesioner = questions.map((question) => ({
-        id_kriteria: Number(question.id),
-        nilai_jawaban: answers[question.id],
-    }));
-
-    setErrorMessage("");
-    setIsSubmitting(true);
-
-    try {
-        // 1. Simpan jawaban kuesioner.
-        const response = await fetch(
-            `${API_URL}/jawaban-kuesioner`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    nik_penerima: nikPenerima,
-                    jawaban: jawabanKuesioner,
-                }),
-            }
-        );
-
-        const jawabanData = await readResponse(
-            response,
-            "menyimpan jawaban kuesioner"
-        );
-
-        // 2. Ambil token dari respons backend.
-        const tokenPengajuan =
-            jawabanData.pengajuan?.token_verifikasi;
-
-        if (!tokenPengajuan) {
-            throw new Error(
-                "Jawaban berhasil disimpan, tetapi token " +
-                "pengajuan tidak ditemukan dari server."
+        if (!nikPenerima) {
+            setErrorMessage(
+                "NIK calon penerima tidak ditemukan. " +
+                "Silakan ulangi proses pendaftaran."
             );
+
+            return;
         }
 
-        // 3. Unggah bukti pendukung.
-        for (const question of questions) {
-            const file = evidence[question.id];
+        const unansweredQuestions = questions.filter(
+            (question) => {
+                const answer = answers[question.id];
 
-            if (!file || answers[question.id] !== "Ya") {
-                continue;
+                return (
+                    answer === undefined ||
+                    answer === null ||
+                    String(answer).trim() === ""
+                );
             }
+        );
 
-            const formData = new FormData();
+        const missingEvidence = questions.filter(
+            (question) =>
+                question.requireEvidence &&
+                answers[question.id] === "Ya" &&
+                !evidence[question.id]
+        );
 
-            formData.append("file", file);
-            formData.append("nik_penerima", nikPenerima);
-            formData.append(
-                "id_kriteria",
-                String(question.id)
+        if (unansweredQuestions.length > 0) {
+            setErrorMessage(
+                "Masih ada pertanyaan yang belum dijawab. " +
+                "Silakan lengkapi terlebih dahulu."
             );
 
-            const uploadResponse = await fetch(
-                `${API_URL}/bukti-pendukung`,
+            return;
+        }
+
+        if (missingEvidence.length > 0) {
+            setErrorMessage(
+                "Masih ada bukti pendukung yang belum diunggah."
+            );
+
+            return;
+        }
+
+        const jawabanKuesioner = questions.map((question) => ({
+            id_kriteria: Number(question.id),
+            nilai_jawaban: answers[question.id],
+        }));
+
+        setErrorMessage("");
+        setIsSubmitting(true);
+
+        try {
+            // 1. Simpan jawaban kuesioner.
+            const response = await fetch(
+                `${API_URL}/jawaban-kuesioner`,
                 {
                     method: "POST",
-                    body: formData,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        nik_penerima: nikPenerima,
+                        jawaban: jawabanKuesioner,
+                    }),
                 }
             );
 
-            await readResponse(
-                uploadResponse,
-                `mengunggah bukti pertanyaan ${question.id}`
+            const jawabanData = await readResponse(
+                response,
+                "menyimpan jawaban kuesioner"
             );
+
+            // 2. Ambil token dari respons backend.
+            const tokenPengajuan =
+                jawabanData.pengajuan?.token_verifikasi;
+
+            if (!tokenPengajuan) {
+                throw new Error(
+                    "Jawaban berhasil disimpan, tetapi token " +
+                    "pengajuan tidak ditemukan dari server."
+                );
+            }
+
+            // 3. Unggah bukti pendukung.
+            for (const question of questions) {
+                const file = evidence[question.id];
+
+                if (!file || answers[question.id] !== "Ya") {
+                    continue;
+                }
+
+                const formData = new FormData();
+
+                formData.append("file", file);
+                formData.append("nik_penerima", nikPenerima);
+                formData.append(
+                    "id_kriteria",
+                    String(question.id)
+                );
+
+                const uploadResponse = await fetch(
+                    `${API_URL}/bukti-pendukung`,
+                    {
+                        method: "POST",
+                        body: formData,
+                    }
+                );
+
+                await readResponse(
+                    uploadResponse,
+                    `mengunggah bukti pertanyaan ${question.id}`
+                );
+            }
+
+            // 4. Arahkan ke halaman status menggunakan token.
+            navigate(
+                `/pengajuan/${encodeURIComponent(tokenPengajuan)}`
+            );
+
+        } catch (error) {
+            console.error(
+                "Gagal menyimpan kuesioner:",
+                error
+            );
+
+            setErrorMessage(
+                error.message ||
+                "Terjadi kesalahan saat menyimpan kuesioner."
+            );
+        } finally {
+            setIsSubmitting(false);
         }
-
-        // 4. Arahkan ke halaman status menggunakan token.
-        navigate(
-            `/pengajuan/${encodeURIComponent(tokenPengajuan)}`
-        );
-
-    } catch (error) {
-        console.error(
-            "Gagal menyimpan kuesioner:",
-            error
-        );
-
-        setErrorMessage(
-            error.message ||
-            "Terjadi kesalahan saat menyimpan kuesioner."
-        );
-    } finally {
-        setIsSubmitting(false);
-    }
-};
+    };
 
     return (
         <>
@@ -391,6 +395,7 @@ const handleSubmit = async () => {
                                                     )
                                                 }
                                             />
+
                                             <span>{option}</span>
                                         </label>
                                     ))}

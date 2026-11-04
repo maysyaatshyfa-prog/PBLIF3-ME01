@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { Link, useParams } from "react-router-dom";
 
-const dataKriteria = [
+const dataKriteriaAwal = [
   {
     id: 1,
     kode: "K01",
@@ -11,7 +12,8 @@ const dataKriteria = [
   {
     id: 2,
     kode: "K02",
-    pertanyaan: "Apakah penghasilan calon mustahik mencukupi kebutuhan sehari-hari?",
+    pertanyaan:
+      "Apakah penghasilan calon mustahik mencukupi kebutuhan sehari-hari?",
     status: "Aktif",
   },
   {
@@ -34,20 +36,34 @@ const dataKriteria = [
   },
 ];
 
+const namaAsnaf = {
+  fakir: "Fakir",
+  miskin: "Miskin",
+  amil: "Amil",
+  muallaf: "Muallaf",
+  riqab: "Riqab",
+  gharim: "Gharim",
+  fisabilillah: "Fisabilillah",
+  "ibnu-sabil": "Ibnu Sabil",
+};
+
 function DetailKriteria() {
   const { asnaf } = useParams();
-  const [search, setSearch] = useState("");
 
-  const namaAsnaf = {
-    fakir: "Fakir",
-    miskin: "Miskin",
-    amil: "Amil",
-    muallaf: "Muallaf",
-    riqab: "Riqab",
-    gharim: "Gharim",
-    fisabilillah: "Fisabilillah",
-    "ibnu-sabil": "Ibnu Sabil",
-  };
+  const [search, setSearch] = useState("");
+  const [itemDetail, setItemDetail] = useState(null);
+
+  const [dataKriteria, setDataKriteria] = useState(() => {
+    try {
+      const dataTersimpan = localStorage.getItem(`kriteria-${asnaf}`);
+
+      return dataTersimpan
+        ? JSON.parse(dataTersimpan)
+        : dataKriteriaAwal;
+    } catch {
+      return dataKriteriaAwal;
+    }
+  });
 
   const nama = namaAsnaf[asnaf] || "Fakir";
 
@@ -57,6 +73,27 @@ function DetailKriteria() {
       item.pertanyaan.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  function hapusKriteria(id) {
+    const yakin = window.confirm(
+      "Apakah kamu yakin ingin menghapus kriteria ini?"
+    );
+
+    if (!yakin) return;
+
+    const dataBaru = dataKriteria.filter((item) => item.id !== id);
+
+    setDataKriteria(dataBaru);
+
+    localStorage.setItem(
+      `kriteria-${asnaf}`,
+      JSON.stringify(dataBaru)
+    );
+
+    if (itemDetail?.id === id) {
+      setItemDetail(null);
+    }
+  }
 
   return (
     <div>
@@ -153,9 +190,7 @@ function DetailKriteria() {
                     <div className="flex justify-center gap-2">
                       <button
                         type="button"
-                        onClick={() =>
-                          alert(`Detail ${item.kode}`)
-                        }
+                        onClick={() => setItemDetail(item)}
                         className="rounded-lg px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100"
                       >
                         Detail
@@ -169,6 +204,14 @@ function DetailKriteria() {
                         className="rounded-lg px-3 py-2 text-xs font-medium text-orange-500 hover:bg-orange-50"
                       >
                         Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => hapusKriteria(item.id)}
+                        className="rounded-lg px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50"
+                      >
+                        Hapus
                       </button>
                     </div>
                   </td>
@@ -189,6 +232,63 @@ function DetailKriteria() {
           </table>
         </div>
       </div>
+
+      {itemDetail &&
+        createPortal(
+          <div
+            className="kriteria-modal-overlay"
+            onClick={() => setItemDetail(null)}
+          >
+            <section
+              className="kriteria-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="judul-detail-kriteria"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="kriteria-modal-header">
+                <h2 id="judul-detail-kriteria">
+                  Detail Kriteria
+                </h2>
+
+                <button
+                  type="button"
+                  className="kriteria-modal-close"
+                  onClick={() => setItemDetail(null)}
+                  aria-label="Tutup detail"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Golongan Asnaf</span>
+                <strong>{nama}</strong>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Kode Kriteria</span>
+                <strong>{itemDetail.kode || "-"}</strong>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Pertanyaan</span>
+                <p>{itemDetail.pertanyaan || "-"}</p>
+              </div>
+
+              <div className="kriteria-modal-footer">
+                <button
+                  type="button"
+                  className="kriteria-button"
+                  onClick={() => setItemDetail(null)}
+                >
+                  Tutup
+                </button>
+              </div>
+            </section>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
