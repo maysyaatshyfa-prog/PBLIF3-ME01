@@ -1,8 +1,42 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
-const NAMA_ASNAF = {
+const dataKriteriaAwal = [
+  {
+    id: 1,
+    kode: "K01",
+    pertanyaan: "Apakah calon mustahik memiliki penghasilan tetap?",
+    status: "Aktif",
+  },
+  {
+    id: 2,
+    kode: "K02",
+    pertanyaan:
+      "Apakah penghasilan calon mustahik mencukupi kebutuhan sehari-hari?",
+    status: "Aktif",
+  },
+  {
+    id: 3,
+    kode: "K03",
+    pertanyaan: "Apakah calon mustahik memiliki tempat tinggal yang layak?",
+    status: "Aktif",
+  },
+  {
+    id: 4,
+    kode: "K04",
+    pertanyaan: "Apakah calon mustahik mampu memenuhi kebutuhan pokok?",
+    status: "Aktif",
+  },
+  {
+    id: 5,
+    kode: "K05",
+    pertanyaan: "Apakah calon mustahik membutuhkan bantuan zakat?",
+    status: "Aktif",
+  },
+];
+
+const namaAsnaf = {
   fakir: "Fakir",
   miskin: "Miskin",
   amil: "Amil",
@@ -15,29 +49,28 @@ const NAMA_ASNAF = {
 
 function DetailKriteria() {
   const { asnaf } = useParams();
-  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [itemDetail, setItemDetail] = useState(null);
 
   const [dataKriteria, setDataKriteria] = useState(() => {
     try {
-      return JSON.parse(
-        localStorage.getItem(`kriteria-${asnaf}`) || "[]"
-      );
+      const dataTersimpan = localStorage.getItem(`kriteria-${asnaf}`);
+
+      return dataTersimpan
+        ? JSON.parse(dataTersimpan)
+        : dataKriteriaAwal;
     } catch {
-      return [];
+      return dataKriteriaAwal;
     }
   });
 
-  const namaAsnaf = NAMA_ASNAF[asnaf] || "Fakir";
+  const nama = namaAsnaf[asnaf] || "Fakir";
 
-  const dataTerfilter = dataKriteria.filter((item) => {
-    const kataKunci = search.toLowerCase();
-
+  const dataFilter = dataKriteria.filter((item) => {
     return (
-      String(item.kode || "").toLowerCase().includes(kataKunci) ||
-      String(item.pertanyaan || "").toLowerCase().includes(kataKunci)
+      item.kode.toLowerCase().includes(search.toLowerCase()) ||
+      item.pertanyaan.toLowerCase().includes(search.toLowerCase())
     );
   });
 
@@ -63,110 +96,141 @@ function DetailKriteria() {
   }
 
   return (
-    <section className="detail-kriteria-page">
-      <nav className="kriteria-breadcrumb">
-        <Link to="/admin/kriteria">Kelola Kriteria</Link>
-        <span>/</span>
-        <span>{namaAsnaf}</span>
-      </nav>
-
-      <header className="kriteria-header">
-        <h1>{namaAsnaf}</h1>
-        <p>
-          Kelola kriteria dan aturan penilaian untuk golongan{" "}
-          {namaAsnaf.toLowerCase()}.
-        </p>
-      </header>
-
-      <div className="kriteria-summary">
-        <p>Jumlah Kriteria</p>
-        <strong>{dataKriteria.length}</strong>
-      </div>
-
-      <div className="kriteria-toolbar">
-        <div className="kriteria-search">
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Cari kode kriteria atau pertanyaan..."
-            aria-label="Cari kriteria"
-          />
-        </div>
-
-        <button
-          type="button"
-          className="kriteria-button kriteria-button-tambah"
-          onClick={() =>
-            navigate(`/admin/kriteria/${asnaf}/tambah`)
-          }
+    <div>
+      <div className="mb-5">
+        <Link
+          to="/admin/kriteria"
+          className="text-sm text-gray-500 hover:text-orange-500"
         >
-          + Tambah Kriteria
-        </button>
+          ← Kembali ke Kelola Kriteria
+        </Link>
       </div>
 
-      <div className="kriteria-table-wrapper">
-        <table className="kriteria-table">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kode Kriteria</th>
-              <th>Pertanyaan</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">
+          {nama}
+        </h1>
 
-          <tbody>
-            {dataTerfilter.length > 0 ? (
-              dataTerfilter.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{index + 1}</td>
-                  <td>{item.kode}</td>
-                  <td>{item.pertanyaan}</td>
-                  <td>
-                    <div className="kriteria-actions">
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-500">
+          Kelola kriteria dan aturan penilaian yang digunakan untuk
+          membantu mengidentifikasi calon mustahik golongan{" "}
+          {nama.toLowerCase()}.
+        </p>
+      </div>
+
+      <div className="mb-6 w-full max-w-xs rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+        <p className="text-sm text-gray-500">
+          Kriteria
+        </p>
+
+        <p className="mt-1 text-2xl font-bold text-gray-900">
+          {dataKriteria.length}
+        </p>
+      </div>
+
+      <div className="mb-6 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
+        <input
+          type="text"
+          placeholder="Cari kode kriteria atau pertanyaan..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500">
+                  No
+                </th>
+
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500">
+                  Kode Kriteria
+                </th>
+
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500">
+                  Pertanyaan
+                </th>
+
+                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500">
+                  Status
+                </th>
+
+                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500">
+                  Aksi
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-100">
+              {dataFilter.map((item, index) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-gray-500">
+                    {index + 1}
+                  </td>
+
+                  <td className="px-6 py-4 font-medium text-gray-900">
+                    {item.kode}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-600">
+                    {item.pertanyaan}
+                  </td>
+
+                  <td className="px-6 py-4 text-center">
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                      {item.status}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex justify-center gap-2">
                       <button
                         type="button"
-                        className="kriteria-action detail"
                         onClick={() => setItemDetail(item)}
+                        className="rounded-lg px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100"
                       >
                         Detail
                       </button>
 
                       <button
                         type="button"
-                        className="kriteria-action edit"
                         onClick={() =>
-                          navigate(
-                            `/admin/kriteria/${asnaf}/${item.id}/edit`
-                          )
+                          alert(`Edit ${item.kode}`)
                         }
+                        className="rounded-lg px-3 py-2 text-xs font-medium text-orange-500 hover:bg-orange-50"
                       >
                         Edit
                       </button>
 
                       <button
                         type="button"
-                        className="kriteria-action delete"
                         onClick={() => hapusKriteria(item.id)}
+                        className="rounded-lg px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50"
                       >
                         Hapus
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="kriteria-empty">
-                  {search
-                    ? "Kriteria tidak ditemukan."
-                    : "Belum ada data kriteria. Klik + Tambah Kriteria untuk menambahkan."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+
+              {dataFilter.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="px-6 py-10 text-center text-gray-500"
+                  >
+                    Kriteria tidak ditemukan.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {itemDetail &&
@@ -199,7 +263,7 @@ function DetailKriteria() {
 
               <div className="kriteria-modal-field">
                 <span>Golongan Asnaf</span>
-                <strong>{namaAsnaf}</strong>
+                <strong>{nama}</strong>
               </div>
 
               <div className="kriteria-modal-field">
@@ -225,7 +289,7 @@ function DetailKriteria() {
           </div>,
           document.body
         )}
-    </section>
+    </div>
   );
 }
 
