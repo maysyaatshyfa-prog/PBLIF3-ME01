@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -33,11 +34,12 @@ import KelolaTransaksi from "./pages/admin/KelolaTransaksi";
 import KelolaKegiatan from "./pages/admin/KelolaKegiatan";
 import RekapDana from "./pages/admin/RekapDana";
 import PenyaluranDana from "./pages/admin/PenyaluranDana";
+import DetailItemKriteria from "./pages/admin/DetailItemKriteria";
+import FormKriteria from "./pages/admin/FormKriteria";
 
 function App() {
   return (
     <BrowserRouter>
-      {/* Reset scroll setiap pathname berubah */}
       <ScrollToTop />
 
       <Routes>
@@ -83,8 +85,9 @@ function App() {
           }
         />
 
+        {/* Daftar pengajuan */}
         <Route
-          path="/admin/pengajuan"
+          path="/admin/daftar-pengajuan"
           element={
             <AdminLayout>
               <DaftarPengajuan />
@@ -93,7 +96,7 @@ function App() {
         />
 
         <Route
-          path="/admin/pengajuan/:id"
+          path="/admin/daftar-pengajuan/:id"
           element={
             <AdminLayout>
               <DetailPengajuan />
@@ -101,6 +104,7 @@ function App() {
           }
         />
 
+        {/* Daftar pengguna */}
         <Route
           path="/admin/pengguna"
           element={
@@ -110,6 +114,7 @@ function App() {
           }
         />
 
+        {/* Kelola kriteria */}
         <Route
           path="/admin/kriteria"
           element={
@@ -129,6 +134,34 @@ function App() {
         />
 
         <Route
+          path="/admin/kriteria/:asnaf/:id"
+          element={
+            <AdminLayout>
+              <DetailItemKriteria />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/kriteria/:asnaf/tambah"
+          element={
+            <AdminLayout>
+              <FormKriteria />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/kriteria/:asnaf/:id/edit"
+          element={
+            <AdminLayout>
+              <FormKriteria />
+            </AdminLayout>
+          }
+        />
+
+        {/* Kelola transaksi */}
+        <Route
           path="/admin/transaksi"
           element={
             <AdminLayout>
@@ -137,6 +170,7 @@ function App() {
           }
         />
 
+        {/* Kelola kegiatan */}
         <Route
           path="/admin/kegiatan"
           element={
@@ -146,6 +180,7 @@ function App() {
           }
         />
 
+        {/* Rekap dana */}
         <Route
           path="/admin/rekap-dana"
           element={
@@ -155,6 +190,7 @@ function App() {
           }
         />
 
+        {/* Penyaluran dana */}
         <Route
           path="/admin/penyaluran-dana"
           element={

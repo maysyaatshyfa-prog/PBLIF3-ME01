@@ -29,7 +29,6 @@ const requiredEnv = [
     "DB_HOST",
     "DB_PORT",
     "DB_USER",
-    "DB_PASSWORD",
     "DB_NAME",
 ];
 
@@ -682,6 +681,189 @@ app.get("/api/admin/pengajuan", async (req, res) => {
 
         return res.status(500).json({
             message: "Gagal mengambil daftar pengajuan.",
+        });
+    }
+});
+
+// ================================================
+// DETAIL PENGAJUAN ADMIN
+// ================================================
+app.get("/api/admin/pengajuan/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [rows] = await db.execute(
+            `SELECT
+                nik,
+                nama_lengkap,
+                nomor_pengajuan,
+                no_hp,
+                status_pengajuan
+             FROM penerima
+             WHERE nik = ?
+                OR nomor_pengajuan = ?
+             LIMIT 1`,
+            [id, id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: "Pengajuan tidak ditemukan.",
+            });
+        }
+
+        const pengajuan = rows[0];
+
+        const [jawaban] = await db.execute(
+            `SELECT *
+             FROM jawaban_kuesioner
+             WHERE nik = ?`,
+            [pengajuan.nik]
+        );
+
+        return res.status(200).json({
+            message: "Detail pengajuan berhasil diambil.",
+            pengajuan,
+            jawaban,
+        });
+    } catch (error) {
+        console.error(
+            "Gagal mengambil detail pengajuan:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal mengambil detail pengajuan.",
+        });
+    }
+});
+
+ // ================================================
+ // DAFTAR ADMIN
+ // ================================================
+app.get("/api/admin", async (req, res) => {
+    try {
+        const [rows] = await db.execute(
+            `SELECT
+                id_admin,
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                created_at
+             FROM admin
+             ORDER BY id_admin DESC`
+        );
+
+        return res.status(200).json({
+            admins: rows,
+        });
+    } catch (error) {
+        console.error("Gagal mengambil daftar admin:", error.message);
+
+        return res.status(500).json({
+            message: "Gagal mengambil daftar admin.",
+        });
+    }
+});
+
+// ================================================
+// TAMBAH ADMIN
+// ================================================
+app.post("/api/admin", async (req, res) => {
+    try {
+        const {
+            nama_lengkap,
+            alamat_lengkap,
+            email,
+            no_hp,
+            password,
+        } = req.body;
+
+        // Validasi input
+        if (
+            !nama_lengkap?.trim() ||
+            !alamat_lengkap?.trim() ||
+            !email?.trim() ||
+            !no_hp?.trim() ||
+            !password
+        ) {
+            return res.status(400).json({
+                message: "Semua kolom wajib diisi.",
+            });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                message: "Password minimal 8 karakter.",
+            });
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            return res.status(400).json({
+                message: "Format email tidak valid.",
+            });
+        }
+
+        // Periksa email dan nomor HP agar tidak duplikat
+        const [existing] = await db.execute(
+            `SELECT id_admin
+             FROM admin
+             WHERE email = ? OR no_hp = ?
+             LIMIT 1`,
+            [email.trim(), no_hp.trim()]
+        );
+
+        if (existing.length > 0) {
+            return res.status(409).json({
+                message: "Email atau nomor HP sudah terdaftar.",
+            });
+        }
+
+        // Hash password sebelum disimpan
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const [result] = await db.execute(
+            `INSERT INTO admin (
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                password
+            ) VALUES (?, ?, ?, ?, ?)`,
+            [
+                nama_lengkap.trim(),
+                alamat_lengkap.trim(),
+                email.trim(),
+                no_hp.trim(),
+                passwordHash,
+            ]
+        );
+
+        // Ambil data admin baru tanpa mengirim password
+        const [rows] = await db.execute(
+            `SELECT
+                id_admin,
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                created_at
+             FROM admin
+             WHERE id_admin = ?
+             LIMIT 1`,
+            [result.insertId]
+        );
+
+        return res.status(201).json({
+            message: "Admin berhasil ditambahkan.",
+            admin: rows[0],
+        });
+    } catch (error) {
+        console.error("Gagal menambahkan admin:", error.message);
+
+        return res.status(500).json({
+            message: "Gagal menambahkan admin.",
         });
     }
 });
