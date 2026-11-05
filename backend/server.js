@@ -138,9 +138,6 @@ const upload = multer({
     },
 });
 
-// Untuk pengembangan lokal.
-// Dokumen pribadi perlu dilindungi autentikasi sebelum aplikasi
-// dipakai dengan data pengguna sungguhan.
 app.use(
     "/uploads",
     express.static(path.join(__dirname, "uploads"))
@@ -415,214 +412,331 @@ app.post("/api/penerima", async (req, res) => {
     }
 });
 
+
+ // ==================================================
+// AMBIL JAWABAN KUESIONER BERDASARKAN NIK
+// ==================================================
+
+app.get("/api/jawaban-kuesioner", async (req, res) => {
+    try {
+        const nik = String(
+            req.query.nik_penerima || ""
+        ).trim();
+
+        if (!/^\d{16}$/.test(nik)) {
+            return res.status(400).json({
+                message: "NIK penerima harus terdiri dari 16 digit.",
+            });
+        }
+
+        const [rows] = await db.execute(
+            `SELECT
+                jk.id_jawaban,
+                jk.nik_penerima,
+                jk.id_kriteria,
+                kp.nama_kriteria,
+                jk.nilai_jawaban
+             FROM jawaban_kuesioner AS jk
+             LEFT JOIN kriteria_pakar AS kp
+                ON kp.id_kriteria = jk.id_kriteria
+             WHERE jk.nik_penerima = ?
+             ORDER BY jk.id_jawaban ASC`,
+            [nik]
+        );
+
+        return res.status(200).json({
+            message: "Jawaban kuesioner berhasil diambil.",
+            total: rows.length,
+            data: rows,
+        });
+    } catch (error) {
+        console.error(
+            "Gagal mengambil jawaban kuesioner:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal mengambil jawaban kuesioner.",
+        });
+    }
+});
+
+
 // ==================================================
 // SIMPAN JAWABAN KUESIONER
 // ==================================================
 
-app.post(
-    "/api/jawaban-kuesioner",
-    async (req, res) => {
-        let connection;
-        let transactionStarted = false;
 
-        try {
-            const { nik_penerima, jawaban } = req.body;
+app.post("/api/jawaban-kuesioner", async (req, res) => {
+    let connection;
+    let transactionStarted = false;
 
-            if (
-                !nik_penerima ||
-                !Array.isArray(jawaban) ||
-                jawaban.length === 0
-            ) {
-                return res.status(400).json({
-                    message:
-                        "NIK dan jawaban kuesioner wajib diisi.",
-                });
-            }
+    try {
+        const { nik_penerima, jawaban } = req.body;
+        const nik = String(nik_penerima || "").trim();
 
-            const nik = String(nik_penerima).trim();
-
-            const jawabanValid = jawaban.map((item) => ({
-                id_kriteria: Number(item.id_kriteria),
-                nilai_jawaban: item.nilai_jawaban,
-            }));
-
-            const idKriteria = jawabanValid.map(
-                (item) => item.id_kriteria
-            );
-
-            if (
-                jawabanValid.some(
-                    (item) =>
-                        !Number.isInteger(item.id_kriteria) ||
-                        item.id_kriteria <= 0 ||
-                        !["Ya", "Tidak"].includes(
-                            item.nilai_jawaban
-                        )
-                ) ||
-                new Set(idKriteria).size !== idKriteria.length
-            ) {
-                return res.status(400).json({
-                    message:
-                        "Data jawaban atau ID kriteria tidak valid.",
-                });
-            }
-
-            connection = await db.getConnection();
-
-            const [penerimaAwal] = await connection.execute(
-                `SELECT nik
-                 FROM penerima
-                 WHERE nik = ?`,
-                [nik]
-            );
-
-            if (penerimaAwal.length === 0) {
-                return res.status(404).json({
-                    message:
-                        "Data calon penerima tidak ditemukan.",
-                });
-            }
-
-            const placeholders = idKriteria
-                .map(() => "?")
-                .join(", ");
-
-            const [kriteria] = await connection.execute(
-                `SELECT id_kriteria
-                 FROM kriteria_pakar
-                 WHERE id_kriteria IN (${placeholders})`,
-                idKriteria
-            );
-
-            if (kriteria.length !== new Set(idKriteria).size) {
-                return res.status(400).json({
-                    message:
-                        "Ada kriteria yang belum tersedia di database.",
-                });
-            }
-
-            await connection.beginTransaction();
-            transactionStarted = true;
-
-            const [dataPenerima] = await connection.execute(
-                `SELECT nik, nomor_pengajuan, token_verifikasi
-                 FROM penerima
-                 WHERE nik = ?
-                 FOR UPDATE`,
-                [nik]
-            );
-
-            if (dataPenerima.length === 0) {
-                throw new Error(
-                    "Data calon penerima tidak ditemukan."
-                );
-            }
-
-            const penerima = dataPenerima[0];
-
-            // Mengganti jawaban lama dengan jawaban terbaru.
-            await connection.execute(
-                `DELETE FROM jawaban_kuesioner
-                 WHERE nik_penerima = ?`,
-                [nik]
-            );
-
-            for (const item of jawabanValid) {
-                await connection.execute(
-                    `INSERT INTO jawaban_kuesioner (
-                        nik_penerima,
-                        id_kriteria,
-                        nilai_jawaban
-                    )
-                    VALUES (?, ?, ?)`,
-                    [
-                        nik,
-                        item.id_kriteria,
-                        item.nilai_jawaban,
-                    ]
-                );
-            }
-
-            const nomorPengajuan =
-                penerima.nomor_pengajuan ||
-                buatNomorPengajuan();
-
-            const tokenVerifikasi =
-                penerima.token_verifikasi ||
-                buatTokenVerifikasi();
-
-            await connection.execute(
-                `UPDATE penerima
-                 SET nomor_pengajuan = ?,
-                     token_verifikasi = ?
-                 WHERE nik = ?`,
-                [
-                    nomorPengajuan,
-                    tokenVerifikasi,
-                    nik,
-                ]
-            );
-
-            const [hasilPengajuan] = await connection.execute(
-                `SELECT
-                    nama_lengkap,
-                    nomor_pengajuan,
-                    DATE_FORMAT(
-                        created_at,
-                        '%Y-%m-%d %H:%i:%s'
-                    ) AS tanggal_pengajuan,
-                    status_pengajuan,
-                    token_verifikasi
-                 FROM penerima
-                 WHERE nik = ?`,
-                [nik]
-            );
-
-            await connection.commit();
-            transactionStarted = false;
-
-            return res.status(201).json({
-                message: "Jawaban kuesioner berhasil disimpan.",
-                jumlah_jawaban: jawabanValid.length,
-                pengajuan: hasilPengajuan[0],
+        if (!/^\d{16}$/.test(nik)) {
+            return res.status(400).json({
+                message: "NIK penerima harus terdiri dari 16 digit.",
             });
-        } catch (error) {
-            if (connection && transactionStarted) {
+        }
+
+        if (!Array.isArray(jawaban) || jawaban.length === 0) {
+            return res.status(400).json({
+                message: "Jawaban kuesioner wajib diisi.",
+            });
+        }
+
+        // Setiap jawaban harus memiliki ID pertanyaan.
+        const jawabanValid = jawaban.map((item) => ({
+            id_pertanyaan: Number(item.id_pertanyaan),
+            nilai_jawaban: item.nilai_jawaban,
+        }));
+
+        const idPertanyaan = jawabanValid.map(
+            (item) => item.id_pertanyaan
+        );
+
+        if (
+            jawabanValid.some(
+                (item) =>
+                    !Number.isInteger(item.id_pertanyaan) ||
+                    item.id_pertanyaan <= 0 ||
+                    item.nilai_jawaban === undefined ||
+                    item.nilai_jawaban === null ||
+                    (
+                        typeof item.nilai_jawaban === "string" &&
+                        item.nilai_jawaban.trim() === ""
+                    )
+            ) ||
+            new Set(idPertanyaan).size !== idPertanyaan.length
+        ) {
+            return res.status(400).json({
+                message: "ID pertanyaan atau nilai jawaban tidak valid.",
+            });
+        }
+
+        connection = await db.getConnection();
+
+        // Pastikan penerima terdaftar.
+        const [penerima] = await connection.execute(
+            `SELECT nik, nomor_pengajuan, token_verifikasi
+             FROM penerima
+             WHERE nik = ?
+             LIMIT 1`,
+            [nik]
+        );
+
+        if (penerima.length === 0) {
+            return res.status(404).json({
+                message: "Data calon penerima tidak ditemukan.",
+            });
+        }
+
+        // Ambil pertanyaan dan kriteria langsung dari database.
+        const placeholders = idPertanyaan.map(() => "?").join(", ");
+
+        const [pertanyaanRows] = await connection.execute(
+            `SELECT
+                id_pertanyaan,
+                id_kriteria,
+                tipe_jawaban,
+                opsi_jawaban,
+                wajib_diisi
+             FROM pertanyaan_kuesioner
+             WHERE id_pertanyaan IN (${placeholders})`,
+            idPertanyaan
+        );
+
+        if (pertanyaanRows.length !== idPertanyaan.length) {
+            return res.status(400).json({
+                message: "Ada ID pertanyaan yang tidak ditemukan.",
+            });
+        }
+
+        const pertanyaanMap = new Map(
+            pertanyaanRows.map((item) => [
+                Number(item.id_pertanyaan),
+                item,
+            ])
+        );
+
+        const jawabanUntukDisimpan = [];
+
+        for (const item of jawabanValid) {
+            const pertanyaan = pertanyaanMap.get(
+                item.id_pertanyaan
+            );
+
+            const nilai = item.nilai_jawaban;
+
+            let opsi = pertanyaan.opsi_jawaban;
+
+            if (typeof opsi === "string") {
                 try {
-                    await connection.rollback();
-                } catch (rollbackError) {
-                    console.error(
-                        "Gagal membatalkan transaksi:",
-                        rollbackError.message
-                    );
+                    opsi = JSON.parse(opsi);
+                } catch {
+                    opsi = [];
                 }
             }
 
-            console.error(
-                "Gagal menyimpan jawaban kuesioner:",
-                error.message
-            );
+            // Normalisasi pilihan, tanpa membedakan huruf besar/kecil.
+            if (
+                ["pilihan", "dropdown"].includes(
+                    pertanyaan.tipe_jawaban
+                )
+            ) {
+                if (!Array.isArray(opsi)) {
+                    return res.status(400).json({
+                        message:
+                            `Pilihan pertanyaan ID ${item.id_pertanyaan} tidak valid.`,
+                    });
+                }
 
-            return res.status(500).json({
-                message: "Gagal menyimpan jawaban kuesioner.",
-            });
-        } finally {
-            if (connection) {
-                connection.release();
+                const pilihanCocok = opsi.find(
+                    (pilihan) =>
+                        String(pilihan).toLowerCase() ===
+                        String(nilai).trim().toLowerCase()
+                );
+
+                if (pilihanCocok === undefined) {
+                    return res.status(400).json({
+                        message:
+                            `Jawaban tidak sesuai pilihan pertanyaan ID ${item.id_pertanyaan}.`,
+                    });
+                }
+
+                jawabanUntukDisimpan.push({
+                    id_kriteria: Number(pertanyaan.id_kriteria),
+                    nilai_jawaban: String(pilihanCocok),
+                });
+
+                continue;
             }
+
+            // Checkbox menyimpan beberapa pilihan sebagai JSON.
+            if (pertanyaan.tipe_jawaban === "checkbox") {
+                if (
+                    !Array.isArray(nilai) ||
+                    !Array.isArray(opsi) ||
+                    nilai.length === 0 ||
+                    nilai.some(
+                        (pilihan) =>
+                            !opsi.some(
+                                (opsiItem) =>
+                                    String(opsiItem) ===
+                                    String(pilihan)
+                            )
+                    )
+                ) {
+                    return res.status(400).json({
+                        message:
+                            `Jawaban checkbox pertanyaan ID ${item.id_pertanyaan} tidak valid.`,
+                    });
+                }
+
+                jawabanUntukDisimpan.push({
+                    id_kriteria: Number(pertanyaan.id_kriteria),
+                    nilai_jawaban: JSON.stringify(nilai),
+                });
+
+                continue;
+            }
+
+            // Tipe lain disimpan sebagai teks.
+            if (
+                !["singkat", "paragraf", "tanggal", "waktu", "skala", "file"].includes(
+                    pertanyaan.tipe_jawaban
+                ) ||
+                typeof nilai !== "string" ||
+                nilai.trim() === ""
+            ) {
+                return res.status(400).json({
+                    message:
+                        `Format jawaban pertanyaan ID ${item.id_pertanyaan} tidak valid.`,
+                });
+            }
+
+            jawabanUntukDisimpan.push({
+                id_kriteria: Number(pertanyaan.id_kriteria),
+                nilai_jawaban: nilai.trim(),
+            });
+        }
+
+        // Mulai transaksi setelah seluruh jawaban divalidasi.
+        await connection.beginTransaction();
+        transactionStarted = true;
+
+        await connection.execute(
+            `DELETE FROM jawaban_kuesioner
+             WHERE nik_penerima = ?`,
+            [nik]
+        );
+
+        for (const item of jawabanUntukDisimpan) {
+            await connection.execute(
+                `INSERT INTO jawaban_kuesioner (
+                    nik_penerima,
+                    id_kriteria,
+                    nilai_jawaban
+                ) VALUES (?, ?, ?)`,
+                [
+                    nik,
+                    item.id_kriteria,
+                    item.nilai_jawaban,
+                ]
+            );
+        }
+
+        const nomorPengajuan =
+            penerima[0].nomor_pengajuan || buatNomorPengajuan();
+
+        const tokenVerifikasi =
+            penerima[0].token_verifikasi || buatTokenVerifikasi();
+
+        await connection.execute(
+            `UPDATE penerima
+             SET nomor_pengajuan = ?,
+                 token_verifikasi = ?
+             WHERE nik = ?`,
+            [nomorPengajuan, tokenVerifikasi, nik]
+        );
+
+        await connection.commit();
+        transactionStarted = false;
+
+        return res.status(201).json({
+            message: "Jawaban kuesioner berhasil disimpan.",
+            jumlah_jawaban: jawabanUntukDisimpan.length,
+            pengajuan: {
+                nik_penerima: nik,
+                nomor_pengajuan: nomorPengajuan,
+                token_verifikasi: tokenVerifikasi,
+            },
+        });
+    } catch (error) {
+        if (connection && transactionStarted) {
+            await connection.rollback().catch(() => {});
+        }
+
+        console.error(
+            "Gagal menyimpan jawaban kuesioner:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Gagal menyimpan jawaban kuesioner.",
+        });
+    } finally {
+        if (connection) {
+            connection.release();
         }
     }
-);
+});
 
 // ==================================================
 // SIMPAN DOKUMEN PENDUKUNG
 // ==================================================
-// Frontend perlu mengirim FormData dengan:
-// - file
-// - nik_penerima
-// - id_kriteria
-//
-// Jawaban kuesioner harus sudah disimpan terlebih dahulu.
 
 app.post(
     "/api/bukti-pendukung",
@@ -933,10 +1047,9 @@ app.get("/api/cek-status/:token", async (req, res) => {
 });
 
 
-// ==================================================
+// ================================================
 // DAFTAR PENGAJUAN ADMIN
-// ==================================================
-
+// ================================================
 app.get("/api/admin/pengajuan", async (req, res) => {
     try {
         const [rows] = await db.execute(
@@ -969,20 +1082,22 @@ app.get("/api/admin/pengajuan", async (req, res) => {
     }
 });
 
-// ==================================================
-// DETAIL PENGAJUAN ADMIN
-// ==================================================
+
+/* ==================================================
+   DETAIL PENGAJUAN ADMIN
+================================================== */
 
 app.get("/api/admin/pengajuan/:nik", async (req, res) => {
     try {
         const nik = String(req.params.nik || "").trim();
 
-        if (!nik) {
+        if (!/^\d{16}$/.test(nik)) {
             return res.status(400).json({
-                message: "NIK pengajuan wajib diisi.",
+                message: "NIK pengajuan tidak valid.",
             });
         }
 
+        // 1. Ambil data lengkap penerima
         const [rows] = await db.execute(
             `SELECT
                 nik,
@@ -993,6 +1108,8 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
                 jenis_kelamin,
                 email,
                 no_hp,
+                provinsi,
+                kota,
                 kecamatan,
                 kelurahan,
                 alamat_lengkap,
@@ -1004,7 +1121,10 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
                 status_pengajuan,
                 status_akun,
                 hasil_sistem_pakar,
-                file_bukti_pendukung
+                file_bukti_pendukung,
+                golongan_mustahik,
+                catatan_admin,
+                tanggal_verifikasi
              FROM penerima
              WHERE nik = ?
              LIMIT 1`,
@@ -1017,6 +1137,9 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
             });
         }
 
+        const pengajuan = rows[0];
+
+        // 2. Ambil jawaban kuesioner beserta nama kriteria
         const [jawaban] = await db.execute(
             `SELECT
                 jk.id_kriteria,
@@ -1026,10 +1149,11 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
              LEFT JOIN kriteria_pakar AS kp
                 ON kp.id_kriteria = jk.id_kriteria
              WHERE jk.nik_penerima = ?
-             ORDER BY jk.id_kriteria`,
+             ORDER BY jk.id_kriteria ASC`,
             [nik]
         );
 
+        // 3. Ambil dokumen pendukung
         const [dokumen] = await db.execute(
             `SELECT
                 id_bukti,
@@ -1041,13 +1165,14 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
                 created_at
              FROM bukti_pendukung
              WHERE nik_penerima = ?
-             ORDER BY id_kriteria`,
+             ORDER BY id_kriteria ASC`,
             [nik]
         );
 
+        // 4. Kirim seluruh data ke frontend
         return res.status(200).json({
             message: "Detail pengajuan berhasil diambil.",
-            pengajuan: rows[0],
+            pengajuan,
             jawaban,
             dokumen,
         });
@@ -1059,6 +1184,151 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
 
         return res.status(500).json({
             message: "Gagal mengambil detail pengajuan.",
+        });
+    }
+});
+
+// ==================================================
+// DAFTAR ADMIN
+// ==================================================
+
+app.get("/api/admin", async (req, res) => {
+    try {
+        const [rows] = await db.execute(
+            `SELECT
+                id_admin,
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                created_at
+             FROM admin
+             ORDER BY id_admin DESC`
+        );
+
+        return res.status(200).json({
+            admins: rows,
+        });
+    } catch (error) {
+        console.error(
+            "Gagal mengambil daftar admin:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal mengambil daftar admin.",
+        });
+    }
+});
+
+
+// ==================================================
+// TAMBAH ADMIN
+// ==================================================
+
+app.post("/api/admin", async (req, res) => {
+    try {
+        const {
+            nama_lengkap,
+            alamat_lengkap,
+            email,
+            no_hp,
+            password,
+        } = req.body;
+
+        if (
+            !nama_lengkap?.trim() ||
+            !alamat_lengkap?.trim() ||
+            !email?.trim() ||
+            !no_hp?.trim() ||
+            !password
+        ) {
+            return res.status(400).json({
+                message:
+                    "Semua kolom wajib diisi.",
+            });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                message:
+                    "Password minimal 8 karakter.",
+            });
+        }
+
+        if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                email.trim()
+            )
+        ) {
+            return res.status(400).json({
+                message: "Format email tidak valid.",
+            });
+        }
+
+        const [existing] = await db.execute(
+            `SELECT id_admin
+             FROM admin
+             WHERE email = ? OR no_hp = ?
+             LIMIT 1`,
+            [email.trim(), no_hp.trim()]
+        );
+
+        if (existing.length > 0) {
+            return res.status(409).json({
+                message:
+                    "Email atau nomor HP sudah terdaftar.",
+            });
+        }
+
+        const passwordHash = await bcrypt.hash(
+            password,
+            10
+        );
+
+        const [result] = await db.execute(
+            `INSERT INTO admin (
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                password
+            ) VALUES (?, ?, ?, ?, ?)`,
+            [
+                nama_lengkap.trim(),
+                alamat_lengkap.trim(),
+                email.trim(),
+                no_hp.trim(),
+                passwordHash,
+            ]
+        );
+
+        const [rows] = await db.execute(
+            `SELECT
+                id_admin,
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                created_at
+             FROM admin
+             WHERE id_admin = ?
+             LIMIT 1`,
+            [result.insertId]
+        );
+
+        return res.status(201).json({
+            message: "Admin berhasil ditambahkan.",
+            admin: rows[0],
+        });
+    } catch (error) {
+        console.error(
+            "Gagal menambahkan admin:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal menambahkan admin.",
         });
     }
 });
@@ -1595,15 +1865,875 @@ app.get("/api/penerima/dashboard/:nik", async (req, res) => {
     }
 });
 
+// ===============================
+// GET DATA ADMIN
+// ===============================
+app.get("/api/admin", async (req, res) => {
+  try {
+    const [admins] = await db.execute(`
+      SELECT
+        id_admin,
+        nama_lengkap,
+        alamat_lengkap,
+        email,
+        no_hp,
+        created_at
+      FROM admin
+      ORDER BY created_at DESC
+    `);
+
+    return res.status(200).json({
+      message: "Data admin berhasil diambil.",
+      total: admins.length,
+      admins,
+    });
+  } catch (error) {
+    console.error("Gagal mengambil data admin:", error);
+
+    return res.status(500).json({
+      message: "Gagal mengambil data admin.",
+    });
+  }
+});
+
 // ==================================================
-// ENDPOINT TIDAK DITEMUKAN
+// KONSTANTA ASNAF UNTUK API KRITERIA
 // ==================================================
 
-app.use("/api", (req, res) => {
-    res.status(404).json({
-        message: `Endpoint tidak ditemukan: ${req.method} ${req.originalUrl}`,
-    });
+const LABEL_ASNAF_KRITERIA = {
+    fakir: "Fakir",
+    miskin: "Miskin",
+    amil: "Amil",
+    muallaf: "Mualaf",
+    riqab: "Riqab",
+    gharim: "Gharim",
+    fisabilillah: "Fi Sabilillah",
+    "ibnu-sabil": "Ibnu Sabil",
+};
+
+
+// ==================================================
+// 18. AMBIL KRITERIA PAKAR BERDASARKAN ASNAF
+// ==================================================
+
+app.get(
+    "/api/admin/kriteria",
+    async (req, res) => {
+        try {
+            const asnaf = String(
+                req.query.asnaf || ""
+            ).trim().toLowerCase();
+
+            const labelAsnaf =
+                LABEL_ASNAF_KRITERIA[asnaf];
+
+            if (!labelAsnaf) {
+                return res.status(400).json({
+                    message:
+                        "Golongan asnaf tidak valid.",
+                });
+            }
+
+            const [rows] = await db.execute(
+                `SELECT
+                    id_kriteria,
+                    nama_kriteria,
+                    bobot_kriteria
+                 FROM kriteria_pakar
+                 WHERE LOWER(nama_kriteria) LIKE LOWER(?)
+                 ORDER BY id_kriteria ASC`,
+                [`${labelAsnaf} -%`]
+            );
+
+            return res.json({
+                data: rows,
+            });
+        } catch (error) {
+            console.error(
+                "Gagal mengambil kriteria:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal mengambil kriteria.",
+            });
+        }
+    }
+);
+
+// ================================================
+// AMBIL SEMUA PERTANYAAN KUESIONER
+// ================================================
+
+app.get(
+    "/api/admin/pertanyaan/semua",
+    async (req, res) => {
+        try {
+            const [rows] = await db.execute(`
+                SELECT
+                    id_pertanyaan,
+                    id_kriteria,
+                    pertanyaan,
+                    tipe_jawaban,
+                    opsi_jawaban,
+                    wajib_diisi,
+                    tampilkan_upload_jika_ya,
+                    upload_wajib,
+                    label_upload,
+                    urutan
+                FROM pertanyaan_kuesioner
+                ORDER BY
+                    id_kriteria ASC,
+                    urutan ASC,
+                    id_pertanyaan ASC
+            `);
+
+            const data = rows.map((item) => {
+                let opsiJawaban = item.opsi_jawaban;
+
+                if (typeof opsiJawaban === "string") {
+                    try {
+                        opsiJawaban = JSON.parse(
+                            opsiJawaban
+                        );
+                    } catch {
+                        opsiJawaban = [];
+                    }
+                }
+
+                return {
+                    ...item,
+                    opsi_jawaban: opsiJawaban,
+                    wajib_diisi: Boolean(
+                        item.wajib_diisi
+                    ),
+                    tampilkan_upload_jika_ya: Boolean(
+                        item.tampilkan_upload_jika_ya
+                    ),
+                    upload_wajib: Boolean(
+                        item.upload_wajib
+                    ),
+                };
+            });
+
+            return res.json({
+                total: data.length,
+                data,
+            });
+        } catch (error) {
+            console.error(
+                "Gagal mengambil semua pertanyaan:",
+                error
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal mengambil semua pertanyaan.",
+            });
+        }
+    }
+);
+
+// ==================================================
+// 19. AMBIL PERTANYAAN BERDASARKAN ID KRITERIA
+// ==================================================
+
+app.get(
+    "/api/admin/pertanyaan",
+    async (req, res) => {
+        try {
+            const idKriteria = Number(
+                req.query.id_kriteria
+            );
+
+            if (
+                !Number.isInteger(idKriteria) ||
+                idKriteria <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "ID kriteria tidak valid.",
+                });
+            }
+
+            const [rows] = await db.execute(
+                `SELECT
+                    id_pertanyaan,
+                    id_kriteria,
+                    pertanyaan,
+                    tipe_jawaban,
+                    opsi_jawaban,
+                    wajib_diisi,
+                    tampilkan_upload_jika_ya,
+                    upload_wajib,
+                    label_upload,
+                    urutan
+                 FROM pertanyaan_kuesioner
+                 WHERE id_kriteria = ?
+                 ORDER BY urutan ASC, id_pertanyaan ASC`,
+                [idKriteria]
+            );
+
+            const data = rows.map((item) => {
+                let opsiJawaban = item.opsi_jawaban;
+
+                if (typeof opsiJawaban === "string") {
+                    try {
+                        opsiJawaban = JSON.parse(
+                            opsiJawaban
+                        );
+                    } catch {
+                        opsiJawaban = [];
+                    }
+                }
+
+                return {
+                    ...item,
+                    opsi_jawaban: opsiJawaban,
+                    wajib_diisi: Boolean(
+                        item.wajib_diisi
+                    ),
+                    tampilkan_upload_jika_ya: Boolean(
+                        item.tampilkan_upload_jika_ya
+                    ),
+                    upload_wajib: Boolean(
+                        item.upload_wajib
+                    ),
+                };
+            });
+
+            return res.json({
+                data,
+            });
+        } catch (error) {
+            console.error(
+                "Gagal mengambil pertanyaan:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal mengambil pertanyaan.",
+            });
+        }
+    }
+);
+
+// ==================================================
+// 20. TAMBAH PERTANYAAN
+// ==================================================
+
+app.post(
+    "/api/admin/pertanyaan",
+    async (req, res) => {
+        try {
+            const {
+                id_kriteria,
+                pertanyaan,
+                tipe_jawaban = "singkat",
+                opsi_jawaban = null,
+                wajib_diisi = true,
+                tampilkan_upload_jika_ya = false,
+                upload_wajib = false,
+                label_upload = "Unggah bukti pendukung",
+                urutan = 1,
+            } = req.body;
+
+            const idKriteria = Number(id_kriteria);
+
+            const teksPertanyaan = String(
+                pertanyaan || ""
+            ).trim();
+
+            const tipeDiizinkan = [
+                "singkat",
+                "paragraf",
+                "pilihan",
+                "checkbox",
+                "dropdown",
+                "tanggal",
+                "waktu",
+                "file",
+                "skala",
+            ];
+
+            if (
+                !Number.isInteger(idKriteria) ||
+                idKriteria <= 0 ||
+                !teksPertanyaan
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Kriteria dan teks pertanyaan wajib diisi.",
+                });
+            }
+
+            if (
+                !tipeDiizinkan.includes(tipe_jawaban)
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Tipe jawaban tidak valid.",
+                });
+            }
+
+            if (
+                ["pilihan", "checkbox", "dropdown"].includes(
+                    tipe_jawaban
+                ) &&
+                (
+                    !Array.isArray(opsi_jawaban) ||
+                    opsi_jawaban.filter(
+                        (opsi) =>
+                            String(opsi).trim() !== ""
+                    ).length < 2
+                )
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Tipe pilihan harus memiliki minimal dua opsi.",
+                });
+            }
+
+            const [kriteria] = await db.execute(
+                `SELECT id_kriteria
+                 FROM kriteria_pakar
+                 WHERE id_kriteria = ?`,
+                [idKriteria]
+            );
+
+            if (kriteria.length === 0) {
+                return res.status(404).json({
+                    message:
+                        "Kriteria tidak ditemukan.",
+                });
+            }
+
+            const [hasil] = await db.execute(
+                `INSERT INTO pertanyaan_kuesioner (
+                    id_kriteria,
+                    pertanyaan,
+                    tipe_jawaban,
+                    opsi_jawaban,
+                    wajib_diisi,
+                    tampilkan_upload_jika_ya,
+                    upload_wajib,
+                    label_upload,
+                    urutan
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    idKriteria,
+                    teksPertanyaan,
+                    tipe_jawaban,
+                    opsi_jawaban == null
+                        ? null
+                        : JSON.stringify(opsi_jawaban),
+                    wajib_diisi ? 1 : 0,
+                    tampilkan_upload_jika_ya ? 1 : 0,
+                    upload_wajib ? 1 : 0,
+                    String(
+                        label_upload ||
+                        "Unggah bukti pendukung"
+                    ),
+                    Math.max(
+                        1,
+                        Number(urutan) || 1
+                    ),
+                ]
+            );
+
+            return res.status(201).json({
+                message:
+                    "Pertanyaan berhasil ditambahkan.",
+                id_pertanyaan: hasil.insertId,
+            });
+        } catch (error) {
+            console.error(
+                "Gagal menambahkan pertanyaan:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal menambahkan pertanyaan.",
+            });
+        }
+    }
+);
+
+// ==================================================
+// 21. UBAH PERTANYAAN
+// ==================================================
+
+app.put(
+    "/api/admin/pertanyaan/:id",
+    async (req, res) => {
+        try {
+            const idPertanyaan = Number(
+                req.params.id
+            );
+
+            const {
+                id_kriteria,
+                pertanyaan,
+                tipe_jawaban = "singkat",
+                opsi_jawaban = null,
+                wajib_diisi = true,
+                tampilkan_upload_jika_ya = false,
+                upload_wajib = false,
+                label_upload = "Unggah bukti pendukung",
+                urutan = 1,
+            } = req.body;
+
+            const idKriteria = Number(id_kriteria);
+
+            const teksPertanyaan = String(
+                pertanyaan || ""
+            ).trim();
+
+            const tipeDiizinkan = [
+                "singkat",
+                "paragraf",
+                "pilihan",
+                "checkbox",
+                "dropdown",
+                "tanggal",
+                "waktu",
+                "file",
+                "skala",
+            ];
+
+            if (
+                !Number.isInteger(idPertanyaan) ||
+                idPertanyaan <= 0 ||
+                !Number.isInteger(idKriteria) ||
+                idKriteria <= 0 ||
+                !teksPertanyaan
+            ) {
+                return res.status(400).json({
+                    message:
+                        "ID, kriteria, dan pertanyaan wajib valid.",
+                });
+            }
+
+            if (
+                !tipeDiizinkan.includes(tipe_jawaban)
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Tipe jawaban tidak valid.",
+                });
+            }
+
+            if (
+                ["pilihan", "checkbox", "dropdown"].includes(
+                    tipe_jawaban
+                ) &&
+                (
+                    !Array.isArray(opsi_jawaban) ||
+                    opsi_jawaban.filter(
+                        (opsi) =>
+                            String(opsi).trim() !== ""
+                    ).length < 2
+                )
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Tipe pilihan harus memiliki minimal dua opsi.",
+                });
+            }
+
+            const [kriteria] = await db.execute(
+                `SELECT id_kriteria
+                 FROM kriteria_pakar
+                 WHERE id_kriteria = ?`,
+                [idKriteria]
+            );
+
+            if (kriteria.length === 0) {
+                return res.status(404).json({
+                    message:
+                        "Kriteria tidak ditemukan.",
+                });
+            }
+
+            const [hasil] = await db.execute(
+                `UPDATE pertanyaan_kuesioner
+                 SET
+                    id_kriteria = ?,
+                    pertanyaan = ?,
+                    tipe_jawaban = ?,
+                    opsi_jawaban = ?,
+                    wajib_diisi = ?,
+                    tampilkan_upload_jika_ya = ?,
+                    upload_wajib = ?,
+                    label_upload = ?,
+                    urutan = ?
+                 WHERE id_pertanyaan = ?`,
+                [
+                    idKriteria,
+                    teksPertanyaan,
+                    tipe_jawaban,
+                    opsi_jawaban == null
+                        ? null
+                        : JSON.stringify(opsi_jawaban),
+                    wajib_diisi ? 1 : 0,
+                    tampilkan_upload_jika_ya ? 1 : 0,
+                    upload_wajib ? 1 : 0,
+                    String(
+                        label_upload ||
+                        "Unggah bukti pendukung"
+                    ),
+                    Math.max(
+                        1,
+                        Number(urutan) || 1
+                    ),
+                    idPertanyaan,
+                ]
+            );
+
+            if (hasil.affectedRows === 0) {
+                const [cek] = await db.execute(
+                    `SELECT id_pertanyaan
+                     FROM pertanyaan_kuesioner
+                     WHERE id_pertanyaan = ?`,
+                    [idPertanyaan]
+                );
+
+                if (cek.length === 0) {
+                    return res.status(404).json({
+                        message:
+                            "Pertanyaan tidak ditemukan.",
+                    });
+                }
+            }
+
+            return res.json({
+                message:
+                    "Pertanyaan berhasil diperbarui.",
+            });
+        } catch (error) {
+            console.error(
+                "Gagal memperbarui pertanyaan:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal memperbarui pertanyaan.",
+            });
+        }
+    }
+);
+
+
+ // ==================================================
+// 22. HAPUS PERTANYAAN
+// ==================================================
+
+app.delete(
+    "/api/admin/pertanyaan/:id",
+    async (req, res) => {
+        const idPertanyaan = Number(req.params.id);
+
+        if (
+            !Number.isInteger(idPertanyaan) ||
+            idPertanyaan <= 0
+        ) {
+            return res.status(400).json({
+                message: "ID pertanyaan tidak valid.",
+            });
+        }
+
+        let connection;
+
+        try {
+            connection = await db.getConnection();
+
+            await connection.beginTransaction();
+
+            // Pastikan pertanyaan tersedia.
+            const [pertanyaan] = await connection.execute(
+                `SELECT id_pertanyaan
+                 FROM pertanyaan_kuesioner
+                 WHERE id_pertanyaan = ?
+                 FOR UPDATE`,
+                [idPertanyaan]
+            );
+
+            if (pertanyaan.length === 0) {
+                await connection.rollback();
+
+                return res.status(404).json({
+                    message: "Pertanyaan tidak ditemukan.",
+                });
+            }
+
+            // Periksa apakah pertanyaan sudah memiliki jawaban.
+            const [jawaban] = await connection.execute(
+                `SELECT id_kriteria
+                 FROM jawaban_kuesioner
+                 WHERE id_kriteria = (
+                     SELECT id_kriteria
+                     FROM pertanyaan_kuesioner
+                     WHERE id_pertanyaan = ?
+                 )
+                 LIMIT 1`,
+                [idPertanyaan]
+            );
+
+            if (jawaban.length > 0) {
+                await connection.rollback();
+
+                return res.status(409).json({
+                    message:
+                        "Pertanyaan tidak dapat dihapus karena kriterianya sudah memiliki jawaban kuesioner.",
+                });
+            }
+
+            const [hasil] = await connection.execute(
+                `DELETE FROM pertanyaan_kuesioner
+                 WHERE id_pertanyaan = ?`,
+                [idPertanyaan]
+            );
+
+            if (hasil.affectedRows === 0) {
+                await connection.rollback();
+
+                return res.status(404).json({
+                    message: "Pertanyaan tidak ditemukan.",
+                });
+            }
+
+            await connection.commit();
+
+            return res.status(200).json({
+                message: "Pertanyaan berhasil dihapus.",
+            });
+        } catch (error) {
+            if (connection) {
+                await connection.rollback().catch(() => {});
+            }
+
+            console.error(
+                "Gagal menghapus pertanyaan:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message: "Gagal menghapus pertanyaan.",
+            });
+        } finally {
+            if (connection) {
+                connection.release();
+            }
+        }
+    }
+);
+
+
+// ==================================================
+// 23. DAFTAR TRANSAKSI ADMIN
+// ==================================================
+
+app.get(
+    "/api/admin/transaksi",
+    async (req, res) => {
+        try {
+            const [rows] = await db.execute(
+                `SELECT
+                    td.id_transaksi,
+                    td.id_pemberi,
+                    p.nama_lengkap AS nama_pemberi,
+                    td.id_event,
+                    td.jenis_dana,
+                    td.nominal,
+                    td.metode_pembayaran,
+                    td.status_pembayaran,
+                    td.tanggal_bayar
+                 FROM transaksi_donasi td
+                 LEFT JOIN pemberi p
+                    ON td.id_pemberi = p.id_pemberi
+                 ORDER BY
+                    td.tanggal_bayar DESC,
+                    td.id_transaksi DESC`
+            );
+
+            const [summaryRows] = await db.execute(
+                `SELECT
+                    COUNT(*) AS total_transaksi,
+
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN status_pembayaran = 'Success'
+                                THEN nominal
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    ) AS total_nominal_berhasil,
+
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN status_pembayaran = 'Pending'
+                                THEN 1
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    ) AS total_menunggu,
+
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN status_pembayaran = 'Success'
+                                THEN 1
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    ) AS total_berhasil,
+
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN status_pembayaran = 'Failed'
+                                THEN 1
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    ) AS total_gagal,
+
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN tanggal_bayar >=
+                                    DATE_FORMAT(
+                                        CURDATE(),
+                                        '%Y-%m-01'
+                                    )
+                                AND tanggal_bayar <
+                                    DATE_FORMAT(
+                                        CURDATE() + INTERVAL 1 MONTH,
+                                        '%Y-%m-01'
+                                    )
+                                THEN 1
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    ) AS transaksi_bulan_ini
+
+                 FROM transaksi_donasi`
+            );
+
+            return res.status(200).json({
+                message:
+                    "Data transaksi berhasil diambil.",
+                total: rows.length,
+                transaksi: rows,
+                statistik: summaryRows[0],
+            });
+        } catch (error) {
+            console.error(
+                "Gagal mengambil data transaksi:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal mengambil data transaksi.",
+            });
+        }
+    }
+);
+
+
+/* ================================================
+   DAFTAR PENERIMA YANG SUDAH DIVERIFIKASI
+================================================ */
+
+app.get("/api/penerima", async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT
+                nik,
+                nama_lengkap,
+                tempat_lahir,
+                tanggal_lahir,
+                usia,
+                jenis_kelamin,
+                email,
+                no_hp,
+                kecamatan,
+                kelurahan,
+                alamat_lengkap,
+                status_akun,
+                status_pengajuan,
+                golongan_mustahik,
+                tanggal_verifikasi,
+                created_at
+            FROM penerima
+            WHERE status_pengajuan = 'Diterima'
+            ORDER BY tanggal_verifikasi DESC, created_at DESC
+        `);
+
+        return res.status(200).json({
+            message: "Daftar penerima terverifikasi berhasil diambil.",
+            total: rows.length,
+            penerima: rows,
+        });
+    } catch (error) {
+        console.error(
+            "Gagal mengambil daftar penerima:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal mengambil daftar penerima.",
+        });
+    }
 });
+
+
+// ================================================
+// DAFTAR PEMBERI ZAKAT
+// ================================================
+app.get("/api/pemberi", async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT
+                id_pemberi,
+                nama_lengkap,
+                email,
+                no_hp,
+                created_at
+            FROM pemberi
+            ORDER BY created_at DESC
+        `);
+
+        return res.status(200).json({
+            message: "Data pemberi berhasil diambil.",
+            total: rows.length,
+            pemberi: rows,
+        });
+    } catch (error) {
+        console.error(
+            "Gagal mengambil data pemberi:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal mengambil data pemberi.",
+        });
+    }
+});
+
 
 // ================================================
 // MIDDLEWARE ERROR UPLOAD DAN SERVER
@@ -1626,6 +2756,90 @@ app.use((error, req, res, next) => {
 
     return res.status(500).json({
         message: "Terjadi kesalahan pada server.",
+    });
+});
+
+
+/* ================================================
+   STATISTIK DASHBOARD ADMIN
+================================================ */
+app.get("/api/admin/dashboard", async (req, res) => {
+    try {
+        // 1. Menghitung pengajuan yang masih menunggu verifikasi
+        const [pengajuanRows] = await db.execute(`
+            SELECT COUNT(*) AS total
+            FROM penerima
+            WHERE status_pengajuan = 'Menunggu Verifikasi'
+        `);
+
+        // 2. Menghitung seluruh pemberi zakat
+        const [pemberiRows] = await db.execute(`
+            SELECT COUNT(*) AS total
+            FROM pemberi
+        `);
+
+        // 3. Menghitung total transaksi yang pembayarannya berhasil
+        const [zakatRows] = await db.execute(`
+            SELECT COALESCE(SUM(nominal), 0) AS total
+            FROM transaksi_donasi
+            WHERE LOWER(status_pembayaran) IN (
+                'berhasil',
+                'lunas',
+                'sukses'
+            )
+        `);
+
+        // 4. Menghitung jumlah pengajuan setiap bulan
+        const [grafikRows] = await db.execute(`
+            SELECT
+                DATE_FORMAT(created_at, '%Y-%m') AS periode,
+                COUNT(*) AS jumlah
+            FROM penerima
+            WHERE created_at >= DATE_FORMAT(
+                DATE_SUB(CURDATE(), INTERVAL 11 MONTH),
+                '%Y-%m-01'
+            )
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY periode ASC
+        `);
+
+        const namaBulan = [
+            "Jan", "Feb", "Mar", "Apr",
+            "Mei", "Jun", "Jul", "Agu",
+            "Sep", "Okt", "Nov", "Des"
+        ];
+
+        const grafikPengajuan = grafikRows.map((row) => {
+            const [tahun, bulan] = row.periode.split("-");
+
+            return {
+                bulan: `${namaBulan[Number(bulan) - 1]} ${tahun}`,
+                jumlah: Number(row.jumlah),
+            };
+        });
+
+        return res.status(200).json({
+            pengajuanMenunggu: Number(pengajuanRows[0].total),
+            totalPemberi: Number(pemberiRows[0].total),
+            totalZakat: Number(zakatRows[0].total),
+            grafikPengajuan,
+        });
+    } catch (error) {
+        console.error("Gagal mengambil statistik dashboard:", error);
+
+        return res.status(500).json({
+            message: "Gagal mengambil statistik dashboard.",
+        });
+    }
+});
+
+// ==================================================
+// ENDPOINT TIDAK DITEMUKAN
+// ==================================================
+
+app.use("/api", (req, res) => {
+    res.status(404).json({
+        message: `Endpoint tidak ditemukan: ${req.method} ${req.originalUrl}`,
     });
 });
 
