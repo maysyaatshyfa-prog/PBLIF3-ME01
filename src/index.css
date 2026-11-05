@@ -1559,29 +1559,33 @@ body {
    FORM DATA DIRI PAGE
 ========================= */
 
-.form-page {
+form-page {
+  width: 100%;
   min-height: 100vh;
-  background-color: #fffaf3;
+  background: #fffaf3;
 }
 
-.form-content {
+.form-page .form-content {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  width: 100%;
   padding: 25px 20px 50px;
+  box-sizing: border-box;
 }
 
-.form-card {
+.form-page .form-card {
   width: 100%;
   max-width: 900px;
-  background-color: #ffffff;
+  margin: 0 auto;
   padding: 40px;
+  background: #ffffff;
   border-radius: 20px;
-  box-sizing: border-box;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
 }
 
-.form-card h1 {
+.form-page .form-card h1 {
   margin: 0 0 10px;
   text-align: center;
   font-family: "Newsreader", Georgia, serif;
@@ -1589,7 +1593,7 @@ body {
   color: #111;
 }
 
-.form-description {
+.form-page .form-description {
   margin: 0 0 35px;
   text-align: center;
   font-family: "Inter", sans-serif;
@@ -1597,29 +1601,32 @@ body {
   color: #666;
 }
 
-.form-section {
+.form-page .form-section {
+  width: 100%;
   margin-bottom: 30px;
 }
 
-.form-section h2 {
+.form-page .form-section h2 {
   margin: 0 0 18px;
-  font-family: "Inter", sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #111;
 }
 
-.form-grid {
+/* Susunan input dua kolom */
+.form-page .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  width: 100%;
 }
 
-.form-group {
+.form-page .form-group {
+  min-width: 0;
   margin-bottom: 20px;
 }
 
-.form-group label {
+.form-page .form-group label {
   display: block;
   margin-bottom: 8px;
   font-family: "Inter", sans-serif;
@@ -1628,48 +1635,82 @@ body {
   color: #222;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-page .form-group input,
+.form-page .form-group select,
+.form-page .form-group textarea {
+  display: block;
   width: 100%;
+  min-height: 48px;
   padding: 13px 15px;
   box-sizing: border-box;
   border: 1px solid #ddd;
   border-radius: 10px;
+  background: #fff;
   font-family: "Inter", sans-serif;
   font-size: 14px;
-  background-color: #fff;
 }
 
-.form-group textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-page .form-group input:focus,
+.form-page .form-group select:focus,
+.form-page .form-group textarea:focus {
   outline: none;
   border-color: #f7941d;
+  box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.12);
 }
 
-.form-button {
+/* Tombol */
+.form-page .form-button {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
 }
 
-.form-button button {
+.form-page .form-button button {
+  min-height: 48px;
+  padding: 13px 25px;
   border: none;
   border-radius: 10px;
-  padding: 13px 25px;
-  background-color: #f7941d;
-  color: white;
-  font-family: "Inter", sans-serif;
+  background: #f7941d;
+  color: #fff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Tampilan HP dan tablet */
+@media screen and (max-width: 700px) {
+  .form-page .form-content {
+    padding: 20px 14px 35px;
+  }
+
+  .form-page .form-card {
+    max-width: 100%;
+    padding: 24px 18px;
+  }
+
+  .form-page .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .form-page .form-card h1 {
+    font-size: 28px;
+  }
+
+  .form-page .form-description {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .form-page .form-button {
+    width: 100%;
+  }
+
+  .form-page .form-button button {
+    width: 100%;
+  }
+}
+
 
 /* =========================
    KUESIONER PAGE
