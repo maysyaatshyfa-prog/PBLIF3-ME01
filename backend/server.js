@@ -419,9 +419,7 @@ app.post("/api/penerima", async (req, res) => {
 
 app.get("/api/jawaban-kuesioner", async (req, res) => {
     try {
-        const nik = String(
-            req.query.nik_penerima || ""
-        ).trim();
+        const nik = String(req.query.nik_penerima || "").trim();
 
         if (!/^\d{16}$/.test(nik)) {
             return res.status(400).json({
@@ -433,10 +431,14 @@ app.get("/api/jawaban-kuesioner", async (req, res) => {
             `SELECT
                 jk.id_jawaban,
                 jk.nik_penerima,
+                jk.id_pertanyaan,
                 jk.id_kriteria,
+                pk.pertanyaan,
                 kp.nama_kriteria,
                 jk.nilai_jawaban
              FROM jawaban_kuesioner AS jk
+             LEFT JOIN pertanyaan_kuesioner AS pk
+                ON pk.id_pertanyaan = jk.id_pertanyaan
              LEFT JOIN kriteria_pakar AS kp
                 ON kp.id_kriteria = jk.id_kriteria
              WHERE jk.nik_penerima = ?
@@ -450,17 +452,12 @@ app.get("/api/jawaban-kuesioner", async (req, res) => {
             data: rows,
         });
     } catch (error) {
-        console.error(
-            "Gagal mengambil jawaban kuesioner:",
-            error.message
-        );
-
+        console.error("Gagal mengambil jawaban kuesioner:", error.message);
         return res.status(500).json({
             message: "Gagal mengambil jawaban kuesioner.",
         });
     }
 });
-
 
 // ==================================================
 // SIMPAN JAWABAN KUESIONER
@@ -607,6 +604,7 @@ app.post("/api/jawaban-kuesioner", async (req, res) => {
                 }
 
                 jawabanUntukDisimpan.push({
+                    id_pertanyaan: Number(item.id_pertanyaan),
                     id_kriteria: Number(pertanyaan.id_kriteria),
                     nilai_jawaban: String(pilihanCocok),
                 });
@@ -636,6 +634,7 @@ app.post("/api/jawaban-kuesioner", async (req, res) => {
                 }
 
                 jawabanUntukDisimpan.push({
+                    id_pertanyaan: Number(item.id_pertanyaan),
                     id_kriteria: Number(pertanyaan.id_kriteria),
                     nilai_jawaban: JSON.stringify(nilai),
                 });
@@ -658,6 +657,7 @@ app.post("/api/jawaban-kuesioner", async (req, res) => {
             }
 
             jawabanUntukDisimpan.push({
+                id_pertanyaan: Number(item.id_pertanyaan),
                 id_kriteria: Number(pertanyaan.id_kriteria),
                 nilai_jawaban: nilai.trim(),
             });
@@ -677,11 +677,13 @@ app.post("/api/jawaban-kuesioner", async (req, res) => {
             await connection.execute(
                 `INSERT INTO jawaban_kuesioner (
                     nik_penerima,
+                    id_pertanyaan,
                     id_kriteria,
                     nilai_jawaban
-                ) VALUES (?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?)`,
                 [
                     nik,
+                    item.id_pertanyaan,
                     item.id_kriteria,
                     item.nilai_jawaban,
                 ]
@@ -746,20 +748,17 @@ app.post(
         let transactionStarted = false;
 
         try {
-            const nik = String(
-                req.body.nik_penerima || ""
-            ).trim();
+            const nik = String(req.body.nik_penerima || "").trim();
+            const idPertanyaan = Number(req.body.id_pertanyaan);
 
-            const idKriteria = Number(
-                req.body.id_kriteria
-            );
-
-            if (!nik || !Number.isInteger(idKriteria) || idKriteria <= 0) {
+            if (
+                !/^\d{16}$/.test(nik) ||
+                !Number.isInteger(idPertanyaan) ||
+                idPertanyaan <= 0
+            ) {
                 await hapusFile(req.file?.path);
-
                 return res.status(400).json({
-                    message:
-                        "NIK penerima dan ID kriteria wajib diisi.",
+                    message: "NIK penerima dan ID pertanyaan wajib diisi dengan benar.",
                 });
             }
 
@@ -772,75 +771,101 @@ app.post(
             connection = await db.getConnection();
 
             const [penerima] = await connection.execute(
-                `SELECT nik
-                 FROM penerima
-                 WHERE nik = ?`,
+                `SELECT nik FROM penerima WHERE nik = ? LIMIT 1`,
                 [nik]
             );
 
             if (penerima.length === 0) {
                 await hapusFile(req.file.path);
-
                 return res.status(404).json({
-                    message:
-                        "Data calon penerima tidak ditemukan.",
+                    message: "Data calon penerima tidak ditemukan.",
                 });
             }
 
+            // ID kriteria dan aturan upload diambil dari pertanyaan terkait.
+            const [pertanyaanRows] = await connection.execute(
+                `SELECT
+                    id_pertanyaan,
+                    id_kriteria,
+                    tampilkan_upload_jika_ya,
+                    upload_wajib,
+                    label_upload
+                 FROM pertanyaan_kuesioner
+                 WHERE id_pertanyaan = ?
+                 LIMIT 1`,
+                [idPertanyaan]
+            );
+
+            if (pertanyaanRows.length === 0) {
+                await hapusFile(req.file.path);
+                return res.status(404).json({
+                    message: "Pertanyaan kuesioner tidak ditemukan.",
+                });
+            }
+
+            const pertanyaan = pertanyaanRows[0];
+            const idKriteria = Number(pertanyaan.id_kriteria);
+
+            if (!Number(pertanyaan.tampilkan_upload_jika_ya)) {
+                await hapusFile(req.file.path);
+                return res.status(400).json({
+                    message: "Pertanyaan ini tidak menyediakan unggah bukti pendukung.",
+                });
+            }
+
+            // Bukti hanya diterima jika jawaban untuk pertanyaan yang sama adalah Ya.
             const [jawaban] = await connection.execute(
-                `SELECT id_kriteria
+                `SELECT id_jawaban
                  FROM jawaban_kuesioner
                  WHERE nik_penerima = ?
-                   AND id_kriteria = ?
-                   AND nilai_jawaban = 'Ya'
+                   AND id_pertanyaan = ?
+                   AND LOWER(TRIM(nilai_jawaban)) = 'ya'
                  LIMIT 1`,
-                [nik, idKriteria]
+                [nik, idPertanyaan]
             );
 
             if (jawaban.length === 0) {
                 await hapusFile(req.file.path);
-
                 return res.status(400).json({
-                    message:
-                        "Dokumen hanya dapat diunggah untuk pertanyaan yang dijawab Ya.",
+                    message: "Bukti hanya dapat diunggah untuk pertanyaan yang dijawab Ya.",
                 });
             }
 
             await connection.beginTransaction();
             transactionStarted = true;
 
+            // Ambil file lama hanya untuk pertanyaan ini, bukan semua pertanyaan di kriterianya.
             const [dokumenLama] = await connection.execute(
                 `SELECT path_file
                  FROM bukti_pendukung
                  WHERE nik_penerima = ?
-                   AND id_kriteria = ?`,
-                [nik, idKriteria]
+                   AND id_pertanyaan = ?`,
+                [nik, idPertanyaan]
             );
 
-            // Satu dokumen aktif per pertanyaan.
             await connection.execute(
                 `DELETE FROM bukti_pendukung
                  WHERE nik_penerima = ?
-                   AND id_kriteria = ?`,
-                [nik, idKriteria]
+                   AND id_pertanyaan = ?`,
+                [nik, idPertanyaan]
             );
 
-            const pathPublik =
-                `/uploads/bukti-pendukung/${req.file.filename}`;
+            const pathPublik = `/uploads/bukti-pendukung/${req.file.filename}`;
 
             await connection.execute(
                 `INSERT INTO bukti_pendukung (
                     nik_penerima,
+                    id_pertanyaan,
                     id_kriteria,
                     nama_file,
                     nama_file_simpan,
                     path_file,
                     tipe_file,
                     ukuran_file
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     nik,
+                    idPertanyaan,
                     idKriteria,
                     req.file.originalname,
                     req.file.filename,
@@ -853,55 +878,36 @@ app.post(
             await connection.commit();
             transactionStarted = false;
 
-            // Hapus file lama setelah penggantian berhasil.
+            // File lama dihapus setelah transaksi database berhasil.
             for (const dokumen of dokumenLama) {
                 if (dokumen.path_file) {
-                    const namaLama = path.basename(
-                        dokumen.path_file
-                    );
-
-                    await hapusFile(
-                        path.join(uploadRoot, namaLama)
-                    );
+                    await hapusFile(path.join(uploadRoot, path.basename(dokumen.path_file)));
                 }
             }
 
             return res.status(201).json({
-                message:
-                    "Dokumen pendukung berhasil disimpan.",
+                message: "Dokumen pendukung berhasil disimpan.",
                 dokumen: {
                     nama_file: req.file.originalname,
+                    id_pertanyaan: idPertanyaan,
                     id_kriteria: idKriteria,
                     path_file: pathPublik,
                 },
             });
         } catch (error) {
             if (connection && transactionStarted) {
-                try {
-                    await connection.rollback();
-                } catch (rollbackError) {
-                    console.error(
-                        "Gagal membatalkan transaksi dokumen:",
-                        rollbackError.message
-                    );
-                }
+                await connection.rollback().catch((rollbackError) => {
+                    console.error("Gagal rollback transaksi dokumen:", rollbackError.message);
+                });
             }
 
             await hapusFile(req.file?.path);
-
-            console.error(
-                "Gagal menyimpan dokumen pendukung:",
-                error.message
-            );
-
+            console.error("Gagal menyimpan dokumen pendukung:", error.message);
             return res.status(500).json({
-                message:
-                    "Gagal menyimpan dokumen pendukung.",
+                message: "Gagal menyimpan dokumen pendukung.",
             });
         } finally {
-            if (connection) {
-                connection.release();
-            }
+            if (connection) connection.release();
         }
     }
 );
@@ -1142,30 +1148,39 @@ app.get("/api/admin/pengajuan/:nik", async (req, res) => {
         // 2. Ambil jawaban kuesioner beserta nama kriteria
         const [jawaban] = await db.execute(
             `SELECT
+                jk.id_jawaban,
+                jk.id_pertanyaan,
                 jk.id_kriteria,
+                pk.pertanyaan,
                 kp.nama_kriteria,
                 jk.nilai_jawaban
              FROM jawaban_kuesioner AS jk
+             LEFT JOIN pertanyaan_kuesioner AS pk
+                ON pk.id_pertanyaan = jk.id_pertanyaan
              LEFT JOIN kriteria_pakar AS kp
                 ON kp.id_kriteria = jk.id_kriteria
              WHERE jk.nik_penerima = ?
-             ORDER BY jk.id_kriteria ASC`,
+             ORDER BY jk.id_pertanyaan ASC, jk.id_jawaban ASC`,
             [nik]
         );
 
         // 3. Ambil dokumen pendukung
         const [dokumen] = await db.execute(
             `SELECT
-                id_bukti,
-                id_kriteria,
-                nama_file,
-                path_file,
-                tipe_file,
-                ukuran_file,
-                created_at
-             FROM bukti_pendukung
-             WHERE nik_penerima = ?
-             ORDER BY id_kriteria ASC`,
+                bp.id_bukti,
+                bp.id_pertanyaan,
+                bp.id_kriteria,
+                pk.pertanyaan,
+                bp.nama_file,
+                bp.path_file,
+                bp.tipe_file,
+                bp.ukuran_file,
+                bp.created_at
+             FROM bukti_pendukung AS bp
+             LEFT JOIN pertanyaan_kuesioner AS pk
+                ON pk.id_pertanyaan = bp.id_pertanyaan
+             WHERE bp.nik_penerima = ?
+             ORDER BY bp.id_pertanyaan ASC, bp.id_bukti ASC`,
             [nik]
         );
 
@@ -1339,17 +1354,13 @@ app.post("/api/admin", async (req, res) => {
 ================================================== */
 
 app.put("/api/admin/pengajuan/:nik/verifikasi", async (req, res) => {
-    console.log("ROUTE VERIFIKASI TERPANGGIL");
-    console.log("NIK:", req.params.nik);
-    console.log("BODY:", req.body);
-
     try {
         const nik = String(req.params.nik || "").trim();
         const { hasil, golongan, catatan } = req.body;
 
-        if (!nik) {
+        if (!/^\d{16}$/.test(nik)) {
             return res.status(400).json({
-                message: "NIK pengajuan wajib diisi.",
+                message: "NIK pengajuan tidak valid.",
             });
         }
 
@@ -1377,7 +1388,10 @@ app.put("/api/admin/pengajuan/:nik/verifikasi", async (req, res) => {
         }
 
         const [rows] = await db.execute(
-            "SELECT nik FROM penerima WHERE nik = ? LIMIT 1",
+            `SELECT nik
+             FROM penerima
+             WHERE nik = ?
+             LIMIT 1`,
             [nik]
         );
 
@@ -1409,14 +1423,30 @@ app.put("/api/admin/pengajuan/:nik/verifikasi", async (req, res) => {
             ]
         );
 
+        // Ambil data terbaru setelah berhasil disimpan
+        const [dataTerbaru] = await db.execute(
+            `SELECT
+                status_pengajuan,
+                status_akun,
+                golongan_mustahik,
+                catatan_admin,
+                tanggal_verifikasi
+             FROM penerima
+             WHERE nik = ?
+             LIMIT 1`,
+            [nik]
+        );
+
         return res.status(200).json({
-            message: "Hasil verifikasi berhasil disimpan.",
-            status_pengajuan: hasil,
-            status_akun: statusAkun,
-            golongan_mustahik: golongan,
+            message: "Status verifikasi berhasil disimpan.",
+            ...dataTerbaru[0],
         });
+
     } catch (error) {
-        console.error("Gagal menyimpan verifikasi:", error);
+        console.error(
+            "Gagal menyimpan verifikasi:",
+            error
+        );
 
         return res.status(500).json({
             message: "Gagal menyimpan hasil verifikasi.",
@@ -2473,23 +2503,27 @@ app.delete(
 
             // Periksa apakah pertanyaan sudah memiliki jawaban.
             const [jawaban] = await connection.execute(
-                `SELECT id_kriteria
+                `SELECT id_jawaban
                  FROM jawaban_kuesioner
-                 WHERE id_kriteria = (
-                     SELECT id_kriteria
-                     FROM pertanyaan_kuesioner
-                     WHERE id_pertanyaan = ?
-                 )
+                 WHERE id_pertanyaan = ?
                  LIMIT 1`,
                 [idPertanyaan]
             );
 
-            if (jawaban.length > 0) {
+            const [dokumen] = await connection.execute(
+                `SELECT id_bukti
+                 FROM bukti_pendukung
+                 WHERE id_pertanyaan = ?
+                 LIMIT 1`,
+                [idPertanyaan]
+            );
+
+            if (jawaban.length > 0 || dokumen.length > 0) {
                 await connection.rollback();
 
                 return res.status(409).json({
                     message:
-                        "Pertanyaan tidak dapat dihapus karena kriterianya sudah memiliki jawaban kuesioner.",
+                        "Pertanyaan tidak dapat dihapus karena sudah memiliki jawaban atau bukti pendukung.",
                 });
             }
 
