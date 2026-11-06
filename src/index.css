@@ -353,7 +353,7 @@ body {
   border-radius: 30px;
 
   background-color: var(--orange);
-  color: var(--white);
+  color: var(--black);
 
   text-decoration: none;
 
@@ -3966,11 +3966,9 @@ HALAMAN PROFIL PENERIMA
   flex-direction: column;
   justify-content: center;
   padding: 35px 55px;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.68),
-    rgba(0, 0, 0, 0.05)
-  );
+  background: linear-gradient(90deg,
+      rgba(0, 0, 0, 0.68),
+      rgba(0, 0, 0, 0.05));
   color: white;
 }
 
@@ -4309,7 +4307,7 @@ HALAMAN PROFIL PENERIMA
   font-size: 13px;
 }
 
-.pemberi-aktivitas-header > a {
+.pemberi-aktivitas-header>a {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -4320,7 +4318,7 @@ HALAMAN PROFIL PENERIMA
   white-space: nowrap;
 }
 
-.pemberi-aktivitas-header > a:hover {
+.pemberi-aktivitas-header>a:hover {
   color: #c96b00;
 }
 
@@ -4364,7 +4362,7 @@ HALAMAN PROFIL PENERIMA
   line-height: 1.6;
 }
 
-.pemberi-aktivitas-kosong > a {
+.pemberi-aktivitas-kosong>a {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -4378,7 +4376,7 @@ HALAMAN PROFIL PENERIMA
   transition: 0.2s ease;
 }
 
-.pemberi-aktivitas-kosong > a:hover {
+.pemberi-aktivitas-kosong>a:hover {
   background: #e68100;
 }
 
@@ -4761,7 +4759,7 @@ HALAMAN PROFIL PENERIMA
   text-align: center !important;
 }
 
-.donasi-data-kosong > div {
+.donasi-data-kosong>div {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4980,7 +4978,7 @@ HALAMAN PROFIL PENERIMA
   padding: 22px;
 }
 
-.syarat-zakat-list > div {
+.syarat-zakat-list>div {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -5092,12 +5090,10 @@ HALAMAN PROFIL PENERIMA
   align-items: flex-start;
   padding: 40px;
   color: white;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.45) 50%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.45) 50%,
+      rgba(0, 0, 0, 0.05) 100%);
 }
 
 .zakat-hero-overlay span {
@@ -5184,7 +5180,7 @@ HALAMAN PROFIL PENERIMA
   color: #222222;
 }
 
-.kalkulator-zakat-form > p {
+.kalkulator-zakat-form>p {
   color: #777777;
   font-size: 14px;
   margin: 0 0 24px;
@@ -5320,7 +5316,7 @@ HALAMAN PROFIL PENERIMA
   border-radius: 12px;
 }
 
-.hasil-kalkulator-zakat > span {
+.hasil-kalkulator-zakat>span {
   display: block;
   color: #666666;
   font-size: 13px;
@@ -5488,7 +5484,7 @@ HALAMAN PROFIL PENERIMA
     font-size: 15px;
   }
 
-  .pemberi-aktivitas-header > a {
+  .pemberi-aktivitas-header>a {
     font-size: 12px;
   }
 }
@@ -5535,7 +5531,7 @@ HALAMAN PROFIL PENERIMA
     font-size: 15px;
   }
 
-  .pemberi-aktivitas-header > a {
+  .pemberi-aktivitas-header>a {
     font-size: 12px;
   }
 
@@ -6530,6 +6526,155 @@ CSS NYA HILDAA
   }
 }
 
+
+/* =========================================
+   NOTIFIKASI TOAST DETAIL PENGAJUAN
+========================================= */
+
+.detail-notification {
+  position: fixed;
+
+  top: 20px;
+  right: 24px;
+  bottom: auto;
+  left: auto;
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  width: max-content;
+  min-width: 300px;
+  max-width: calc(100vw - 48px);
+
+  padding: 16px 20px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+  color: #111111;
+
+  border: 1px solid #bbf7d0;
+  border-left: 5px solid #16a34a;
+  border-radius: 10px;
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+
+  animation: detailToastIn 0.3s ease-out;
+}
+
+/* NOTIFIKASI BERHASIL */
+
+.detail-notification.success {
+  border-left-color: #16a34a;
+}
+
+/* NOTIFIKASI ERROR */
+
+.detail-notification.error {
+  border-left-color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* KONTEN NOTIFIKASI */
+
+.detail-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  flex: 1;
+  min-width: 0;
+}
+
+/* IKON NOTIFIKASI */
+
+.detail-notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #16a34a;
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.detail-notification.error .detail-notification-icon {
+  background: #dc2626;
+}
+
+/* TOMBOL TUTUP */
+
+.detail-notification button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 5px;
+
+  background: transparent;
+  color: #666666;
+
+  font-size: 24px;
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.detail-notification button:hover {
+  background: #f3f4f6;
+}
+
+/* ANIMASI NOTIFIKASI */
+
+@keyframes detailToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* RESPONSIVE MOBILE */
+
+@media (max-width: 480px) {
+  .detail-notification {
+    top: 20px;
+    right: 12px;
+    left: 12px;
+    bottom: auto;
+
+    width: auto;
+    min-width: 0;
+    max-width: none;
+
+    padding: 12px 14px;
+
+    font-size: 13px;
+  }
+}
 
 /* =====================================
    HALAMAN DAFTAR PENGGUNA
@@ -7984,7 +8129,7 @@ ADMIN - KELOLA KRITERIA
   border-radius: 7px;
 }
 
-.form-kriteria-page .form-kriteria-panel > h2 {
+.form-kriteria-page .form-kriteria-panel>h2 {
   margin: 0 0 20px;
   color: #111111;
   font-size: 16px;
@@ -8019,7 +8164,7 @@ ADMIN - KELOLA KRITERIA
   margin-bottom: 20px;
 }
 
-.form-kriteria-page .builder-field > label {
+.form-kriteria-page .builder-field>label {
   color: #333333;
   font-size: 13px;
   font-weight: 600;
@@ -8451,6 +8596,7 @@ ADMIN - KELOLA KRITERIA
     width: 100%;
   }
 }
+
 /* ADMIN - KELOLA TRANSAKSI */
 
 .admin-transaksi {
@@ -9534,7 +9680,7 @@ ADMIN - DETAIL PEMERIKSAAN PENGAJUAN
   accent-color: #ed842d;
 }
 
-.detail-radio-option > span {
+.detail-radio-option>span {
   display: flex;
   flex: 1 1 0%;
   flex-direction: column;
@@ -9544,7 +9690,7 @@ ADMIN - DETAIL PEMERIKSAAN PENGAJUAN
   gap: 5px;
 }
 
-.detail-radio-option > span strong {
+.detail-radio-option>span strong {
   display: block;
   width: 100%;
   color: #333;
@@ -9552,7 +9698,7 @@ ADMIN - DETAIL PEMERIKSAAN PENGAJUAN
   font-weight: 600;
 }
 
-.detail-radio-option > span small {
+.detail-radio-option>span small {
   display: block;
   width: 100%;
   color: #858585;
@@ -10385,13 +10531,17 @@ th {
    Desktop (1366px) tetap menggunakan layout sidebar kiri.
 ========================================================= */
 
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   max-width: 100%;
   min-height: 100%;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -10445,8 +10595,8 @@ body {
 .profil-penerima-main,
 .detail-pengajuan,
 .admin-beranda,
-.konten-penerima > *,
-.konten-pemberi > * {
+.konten-penerima>*,
+.konten-pemberi>* {
   min-width: 0;
   max-width: 100%;
 }
@@ -10685,6 +10835,7 @@ body {
 }
 
 @media screen and (max-width: 768px) {
+
   .admin-content table,
   .admin-main table,
   .konten-penerima table,
