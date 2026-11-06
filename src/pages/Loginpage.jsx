@@ -1,96 +1,119 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import zakataraLogo from "../assets/zakatara-logo.png";
 
 function LoginPage() {
     const navigate = useNavigate();
 
-    // Data login admin
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState("");
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    // State popup cek status
     const [showTokenModal, setShowTokenModal] = useState(false);
     const [token, setToken] = useState("");
     const [checkingToken, setCheckingToken] = useState(false);
     const [tokenError, setTokenError] = useState("");
-    const [tokenResult, setTokenResult] = useState(null);
 
-    // Login admin
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    // LOGIN ADMIN, PENERIMA, DAN PEMBERI ZAKAT
+    
+const handleLogin = async (e) => {
+    e.preventDefault();
 
-        setLoginError("");
-        setIsLoggingIn(true);
+    setLoginError("");
+    setIsLoggingIn(true);
 
-        try {
-            const response = await fetch(
-                "http://localhost:5000/api/login/admin",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        login: login.trim(),
-                        password,
-                    }),
-                }
-            );
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    result.message || "Login gagal."
-                );
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    login: login.trim(),
+                    password,
+                }),
             }
+        );
 
-            // Simpan informasi admin untuk tampilan sesi ini
-            sessionStorage.setItem(
-                "admin",
-                JSON.stringify(result.admin)
-            );
+        const result = await response.json();
 
-            navigate("/admin");
-        } catch (error) {
-            setLoginError(
-                error.message || "Terjadi kesalahan saat login."
-            );
-        } finally {
-            setIsLoggingIn(false);
+        console.log("Status HTTP:", response.status);
+        console.log("Respons login:", result);
+
+        if (!response.ok) {
+            throw new Error(result.message || "Login gagal.");
         }
-    };
 
-    // Membuka popup cek status
+        if (!result.role || !result.akun) {
+            throw new Error(
+                "Data akun atau role tidak ditemukan dari backend."
+            );
+        }
+
+        const role = String(result.role).trim().toLowerCase();
+
+        let tujuan;
+
+        if (role === "admin") {
+            tujuan = "/admin";
+        } else if (role === "penerima") {
+            tujuan = "/dashboardpenerima";
+        } else if (role === "pemberi") {
+            tujuan = "/dashboardpemberi";
+        } else {
+            throw new Error(`Role "${role}" tidak dikenali.`);
+        }
+
+        sessionStorage.setItem(
+            "akun",
+            JSON.stringify(result.akun)
+        );
+        sessionStorage.setItem("role", role);
+
+        console.log("Login berhasil. Menuju:", tujuan);
+
+        navigate(tujuan, { replace: true });
+    } catch (error) {
+        console.error("Kesalahan login:", error);
+
+        setLoginError(
+            error instanceof TypeError
+                ? "Backend tidak dapat dihubungi. Pastikan server berjalan di port 5000."
+                : error.message || "Terjadi kesalahan saat login."
+        );
+    } finally {
+        setIsLoggingIn(false);
+    }
+};
+
+    // MEMBUKA POPUP CEK STATUS
     const bukaPopupToken = () => {
         setToken("");
         setTokenError("");
-        setTokenResult(null);
         setShowTokenModal(true);
     };
 
-    // Mengecek status pengajuan menggunakan token
+    // CEK STATUS PENGAJUAN
     const handleCekStatus = async (e) => {
         e.preventDefault();
 
-        if (!token.trim()) {
+        const tokenInput = token.trim().toUpperCase();
+
+        if (!tokenInput) {
             setTokenError("Masukkan token pengajuan Anda.");
             return;
         }
 
         setCheckingToken(true);
         setTokenError("");
-        setTokenResult(null);
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/cek-status/${encodeURIComponent(
-                    token.trim()
-                )}`
+                `http://localhost:5000/api/cek-status/${encodeURIComponent(tokenInput)}`
             );
 
             const result = await response.json();
@@ -101,10 +124,15 @@ function LoginPage() {
                 );
             }
 
-            setTokenResult(result.pengajuan);
+            setShowTokenModal(false);
+            navigate(`/pengajuan/${encodeURIComponent(tokenInput)}`);
         } catch (error) {
+            console.error("Kesalahan cek status:", error);
+
             setTokenError(
-                error.message || "Gagal mengecek status pengajuan."
+                error instanceof TypeError
+                    ? "Backend tidak dapat dihubungi."
+                    : error.message || "Gagal mengecek status pengajuan."
             );
         } finally {
             setCheckingToken(false);
@@ -125,7 +153,6 @@ function LoginPage() {
                         Masuk ke akun Anda untuk melanjutkan
                     </p>
 
-                    {/* FORM LOGIN */}
                     <form onSubmit={handleLogin}>
                         <div className="form-group">
                             <label htmlFor="login">
@@ -164,7 +191,9 @@ function LoginPage() {
                         </div>
 
                         <div className="forgot-password">
-                            <a href="/#">Lupa kata sandi?</a>
+                            <Link to="/lupa-password">
+                                Lupa kata sandi?
+                            </Link>
                         </div>
 
                         {loginError && (
@@ -178,13 +207,10 @@ function LoginPage() {
                             className="btn-login"
                             disabled={isLoggingIn}
                         >
-                            {isLoggingIn
-                                ? "Memeriksa..."
-                                : "Masuk"}
+                            {isLoggingIn ? "Memeriksa..." : "Masuk"}
                         </button>
                     </form>
 
-                    {/* TOMBOL CEK STATUS */}
                     <div className="register-box">
                         <p>
                             Sudah pernah pengajuan calon penerima?
@@ -201,7 +227,6 @@ function LoginPage() {
                 </div>
             </div>
 
-            {/* POPUP CEK STATUS */}
             {showTokenModal && (
                 <div
                     className="token-modal-overlay"
@@ -267,52 +292,6 @@ function LoginPage() {
                             <p className="token-error" role="alert">
                                 {tokenError}
                             </p>
-                        )}
-
-                        {tokenResult && (
-                            <div
-                                className="token-result"
-                                aria-live="polite"
-                            >
-                                <h3>Informasi Pengajuan</h3>
-
-                                <p>
-                                    Nama:{" "}
-                                    <strong>
-                                        {tokenResult.nama_lengkap}
-                                    </strong>
-                                </p>
-
-                                <p>
-                                    Nomor Pengajuan:{" "}
-                                    <strong>
-                                        {tokenResult.nomor_pengajuan}
-                                    </strong>
-                                </p>
-
-                                <p>
-                                    Status:{" "}
-                                    <strong>
-                                        {tokenResult.status_pengajuan}
-                                    </strong>
-                                </p>
-
-                                {tokenResult.status_pengajuan === "Diterima" ? (
-                                    <p className="token-login-hint">
-                                        Silakan masuk ke akun Anda untuk
-                                        melanjutkan.
-                                    </p>
-                                ) : tokenResult.status_pengajuan === "Ditolak" ? (
-                                    <p className="token-login-hint">
-                                        Silakan hubungi admin untuk informasi
-                                        lebih lanjut.
-                                    </p>
-                                ) : (
-                                    <p className="token-login-hint">
-                                        Silakan tunggu verifikasi dari admin.
-                                    </p>
-                                )}
-                            </div>
                         )}
                     </div>
                 </div>

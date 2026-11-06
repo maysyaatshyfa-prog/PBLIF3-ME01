@@ -1,13 +1,15 @@
 
 import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
+    BrowserRouter,
+    Routes,
+    Route,
+    Navigate,
 } from "react-router-dom";
 
 import ScrollToTop from "./components/ScrollToTop";
 import AdminLayout from "./components/admin/AdminLayout";
+import SidebarPenerima from "./components/SidebarPenerima";
+import LayoutPemberi from "./Layouts/LayoutPemberi";
 
 // Halaman utama
 import LandingPage from "./pages/LandingPage";
@@ -23,185 +25,236 @@ import FormDataDiri from "./pages/FormDataDiri";
 import Kuisioner from "./pages/Kuisioner";
 import Pengajuan from "./pages/Pengajuan";
 
+// Halaman penerima
+import DashboardPenerima from "./pages/DashboardPenerima";
+import RiwayatBantuan from "./pages/RiwayatBantuan";
+import ProfilPenerima from "./pages/ProfilPenerima";
+
+// Halaman pemberi
+import DashboardPemberi from "./pages/DashboardPemberi";
+import InformasiZakat from "./pages/InformasiZakat";
+import DaftarEvent from "./pages/DaftarEvent";
+import RiwayatDonasi from "./pages/RiwayatDonasi";
+
 // Halaman admin
 import Beranda from "./pages/admin/Beranda";
 import DaftarPengajuan from "./pages/admin/DaftarPengajuan";
 import DetailPengajuan from "./pages/admin/DetailPengajuan";
 import DaftarPengguna from "./pages/admin/DaftarPengguna";
 import KelolaKriteria from "./pages/admin/KelolaKriteria";
+import FormKriteria from "./pages/admin/FormKriteria";
 import DetailKriteria from "./pages/admin/DetailKriteria";
 import KelolaTransaksi from "./pages/admin/KelolaTransaksi";
 import KelolaKegiatan from "./pages/admin/KelolaKegiatan";
 import RekapDana from "./pages/admin/RekapDana";
 import PenyaluranDana from "./pages/admin/PenyaluranDana";
-import DetailItemKriteria from "./pages/admin/DetailItemKriteria";
-import FormKriteria from "./pages/admin/FormKriteria";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <ScrollToTop />
+    return (
+        <BrowserRouter>
+            <ScrollToTop />
 
-      <Routes>
-        {/* Halaman utama */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/mustahiq" element={<MustahiqPage />} />
-        <Route path="/asnaf" element={<AsnafPage />} />
-        <Route path="/kriteria" element={<KriteriaPage />} />
+            <Routes>
+                {/* HALAMAN UTAMA */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/mustahiq" element={<MustahiqPage />} />
+                <Route path="/asnaf" element={<AsnafPage />} />
+                <Route path="/kriteria" element={<KriteriaPage />} />
 
-        {/* Login dan registrasi */}
-        <Route path="/login" element={<LoginPage />} />
+                {/* LOGIN DAN REGISTRASI */}
+                <Route path="/login" element={<LoginPage />} />
 
-        <Route
-          path="/register/options"
-          element={<RegisterOptionsPage />}
-        />
+                <Route
+                    path="/register/options"
+                    element={<RegisterOptionsPage />}
+                />
 
-        <Route
-          path="/register/muzakki"
-          element={<RegisterMuzakkiPage />}
-        />
+                <Route
+                    path="/register/muzakki"
+                    element={<RegisterMuzakkiPage />}
+                />
 
-        <Route
-          path="/register/mustahiq"
-          element={<FormDataDiri />}
-        />
+                <Route
+                    path="/register/mustahiq"
+                    element={<FormDataDiri />}
+                />
 
-        <Route path="/kuisioner" element={<Kuisioner />} />
-        <Route path="/pengajuan" element={<Pengajuan />} />
+                <Route path="/kuisioner" element={<Kuisioner />} />
 
-        {/* Dashboard admin */}
-        <Route
-          path="/admin/dashboard"
-          element={<Navigate to="/admin" replace />}
-        />
+                <Route path="/pengajuan" element={<Pengajuan />} />
 
-        <Route
-          path="/admin"
-          element={
-            <AdminLayout>
-              <Beranda />
-            </AdminLayout>
-          }
-        />
+                <Route
+                    path="/pengajuan/:token"
+                    element={<Pengajuan />}
+                />
 
-        {/* Daftar pengajuan */}
-        <Route
-          path="/admin/daftar-pengajuan"
-          element={
-            <AdminLayout>
-              <DaftarPengajuan />
-            </AdminLayout>
-          }
-        />
+                {/* DASHBOARD PENERIMA */}
+                <Route
+                    path="/sidebarpenerima"
+                    element={<SidebarPenerima />}
+                />
 
-        <Route
-          path="/admin/daftar-pengajuan/:id"
-          element={
-            <AdminLayout>
-              <DetailPengajuan />
-            </AdminLayout>
-          }
-        />
+                <Route
+                    path="/dashboardpenerima"
+                    element={<DashboardPenerima />}
+                />
 
-        {/* Daftar pengguna */}
-        <Route
-          path="/admin/pengguna"
-          element={
-            <AdminLayout>
-              <DaftarPengguna />
-            </AdminLayout>
-          }
-        />
+                <Route
+                    path="/riwayatbantuan"
+                    element={<RiwayatBantuan />}
+                />
 
-        {/* Kelola kriteria */}
-        <Route
-          path="/admin/kriteria"
-          element={
-            <AdminLayout>
-              <KelolaKriteria />
-            </AdminLayout>
-          }
-        />
+                <Route
+                    path="/profilpenerima"
+                    element={<ProfilPenerima />}
+                />
 
-        <Route
-          path="/admin/kriteria/:asnaf"
-          element={
-            <AdminLayout>
-              <DetailKriteria />
-            </AdminLayout>
-          }
-        />
+                {/* DASHBOARD PEMBERI */}
+                <Route element={<LayoutPemberi />}>
+                    <Route
+                        path="/dashboardpemberi"
+                        element={<DashboardPemberi />}
+                    />
 
-        <Route
-          path="/admin/kriteria/:asnaf/:id"
-          element={
-            <AdminLayout>
-              <DetailItemKriteria />
-            </AdminLayout>
-          }
-        />
+                    <Route
+                        path="/informasizakat"
+                        element={<InformasiZakat />}
+                    />
 
-        <Route
-          path="/admin/kriteria/:asnaf/tambah"
-          element={
-            <AdminLayout>
-              <FormKriteria />
-            </AdminLayout>
-          }
-        />
+                    <Route
+                        path="/daftarevent"
+                        element={<DaftarEvent />}
+                    />
 
-        <Route
-          path="/admin/kriteria/:asnaf/:id/edit"
-          element={
-            <AdminLayout>
-              <FormKriteria />
-            </AdminLayout>
-          }
-        />
+                    <Route
+                        path="/riwayatdonasi"
+                        element={<RiwayatDonasi />}
+                    />
+                </Route>
 
-        {/* Kelola transaksi */}
-        <Route
-          path="/admin/transaksi"
-          element={
-            <AdminLayout>
-              <KelolaTransaksi />
-            </AdminLayout>
-          }
-        />
+                {/* DASHBOARD ADMIN */}
+                <Route
+                    path="/admin/dashboard"
+                    element={<Navigate to="/admin" replace />}
+                />
 
-        {/* Kelola kegiatan */}
-        <Route
-          path="/admin/kegiatan"
-          element={
-            <AdminLayout>
-              <KelolaKegiatan />
-            </AdminLayout>
-          }
-        />
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminLayout>
+                            <Beranda />
+                        </AdminLayout>
+                    }
+                />
 
-        {/* Rekap dana */}
-        <Route
-          path="/admin/rekap-dana"
-          element={
-            <AdminLayout>
-              <RekapDana />
-            </AdminLayout>
-          }
-        />
+                {/* KELOLA PENGAJUAN */}
+                <Route
+                    path="/admin/pengajuan"
+                    element={
+                        <AdminLayout>
+                            <DaftarPengajuan />
+                        </AdminLayout>
+                    }
+                />
 
-        {/* Penyaluran dana */}
-        <Route
-          path="/admin/penyaluran-dana"
-          element={
-            <AdminLayout>
-              <PenyaluranDana />
-            </AdminLayout>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
-  );
+                <Route
+                    path="/admin/pengajuan/:id"
+                    element={
+                        <AdminLayout>
+                            <DetailPengajuan />
+                        </AdminLayout>
+                    }
+                />
+
+                {/* KELOLA PENGGUNA */}
+                <Route
+                    path="/admin/pengguna"
+                    element={
+                        <AdminLayout>
+                            <DaftarPengguna />
+                        </AdminLayout>
+                    }
+                />
+
+                {/* KELOLA KRITERIA */}
+                <Route
+                    path="/admin/kriteria"
+                    element={
+                        <AdminLayout>
+                            <KelolaKriteria />
+                        </AdminLayout>
+                    }
+                />
+
+                <Route
+                    path="/admin/kriteria/:asnaf"
+                    element={
+                        <AdminLayout>
+                            <DetailKriteria />
+                        </AdminLayout>
+                    }
+                />
+
+                <Route
+                    path="/admin/kriteria/:asnaf/tambah"
+                    element={
+                        <AdminLayout>
+                            <FormKriteria />
+                        </AdminLayout>
+                    }
+                />
+
+                <Route
+                    path="/admin/kriteria/:asnaf/:id/edit"
+                    element={
+                        <AdminLayout>
+                            <FormKriteria />
+                        </AdminLayout>
+                    }
+                />
+
+                {/* KELOLA TRANSAKSI */}
+                <Route
+                    path="/admin/transaksi"
+                    element={
+                        <AdminLayout>
+                            <KelolaTransaksi />
+                        </AdminLayout>
+                    }
+                />
+
+                {/* KELOLA KEGIATAN */}
+                <Route
+                    path="/admin/kegiatan"
+                    element={
+                        <AdminLayout>
+                            <KelolaKegiatan />
+                        </AdminLayout>
+                    }
+                />
+
+                {/* REKAP DANA */}
+                <Route
+                    path="/admin/rekap-dana"
+                    element={
+                        <AdminLayout>
+                            <RekapDana />
+                        </AdminLayout>
+                    }
+                />
+
+                {/* PENYALURAN DANA */}
+                <Route
+                    path="/admin/penyaluran-dana"
+                    element={
+                        <AdminLayout>
+                            <PenyaluranDana />
+                        </AdminLayout>
+                    }
+                />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;

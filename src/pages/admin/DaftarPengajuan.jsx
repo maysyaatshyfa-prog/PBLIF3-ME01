@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CustomSelect from "../../components/CustomSelect";
 
 function DaftarPengajuan() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ function DaftarPengajuan() {
         const response = await fetch(
           "http://localhost:5000/api/admin/pengajuan"
         );
+
         const result = await response.json();
 
         if (!response.ok) {
@@ -29,11 +31,19 @@ function DaftarPengajuan() {
         }
 
         setDataPengajuan(
-          Array.isArray(result.pengajuan) ? result.pengajuan : []
+          Array.isArray(result.pengajuan)
+            ? result.pengajuan
+            : []
         );
       } catch (err) {
-        console.error("Gagal mengambil daftar pengajuan:", err);
-        setError(err.message || "Terjadi kesalahan.");
+        console.error(
+          "Gagal mengambil daftar pengajuan:",
+          err
+        );
+
+        setError(
+          err.message || "Terjadi kesalahan."
+        );
       } finally {
         setLoading(false);
       }
@@ -62,11 +72,14 @@ function DaftarPengajuan() {
         item.nama_lengkap,
         item.nik,
       ].some((nilai) =>
-        String(nilai || "").toLowerCase().includes(kata)
+        String(nilai || "")
+          .toLowerCase()
+          .includes(kata)
       );
 
       const cocokStatus =
-        status === "semua" || item.status_pengajuan === status;
+        status === "semua" ||
+        item.status_pengajuan === status;
 
       return cocokCari && cocokStatus;
     });
@@ -79,8 +92,13 @@ function DaftarPengajuan() {
         );
       }
 
-      const tanggalA = new Date(a.created_at || 0).getTime();
-      const tanggalB = new Date(b.created_at || 0).getTime();
+      const tanggalA = new Date(
+        a.created_at || 0
+      ).getTime();
+
+      const tanggalB = new Date(
+        b.created_at || 0
+      ).getTime();
 
       return urutan === "terlama"
         ? tanggalA - tanggalB
@@ -94,7 +112,10 @@ function DaftarPengajuan() {
     if (!tanggal) return "-";
 
     const date = new Date(tanggal);
-    if (Number.isNaN(date.getTime())) return "-";
+
+    if (Number.isNaN(date.getTime())) {
+      return "-";
+    }
 
     return date.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -108,14 +129,44 @@ function DaftarPengajuan() {
 
     return String(nilai)
       .replaceAll("_", " ")
-      .replace(/\b\w/g, (huruf) => huruf.toUpperCase());
+      .replace(/\b\w/g, (huruf) =>
+        huruf.toUpperCase()
+      );
   }
+
+  const opsiStatus = [
+    {
+      value: "semua",
+      label: "Semua Status",
+    },
+    ...pilihanStatus.map((nilai) => ({
+      value: nilai,
+      label: formatStatus(nilai),
+    })),
+  ];
+
+  const opsiUrutan = [
+    {
+      value: "terbaru",
+      label: "Terbaru",
+    },
+    {
+      value: "terlama",
+      label: "Terlama",
+    },
+    {
+      value: "nama",
+      label: "Nama A–Z",
+    },
+  ];
 
   return (
     <main className="daftar-pengajuan-page">
       <header className="daftar-pengajuan-header">
         <h1>Daftar Calon Mustahik</h1>
-        <p>Kelola dan periksa pengajuan calon mustahik.</p>
+        <p>
+          Kelola dan periksa pengajuan calon mustahik.
+        </p>
       </header>
 
       <div className="pengajuan-toolbar">
@@ -123,32 +174,25 @@ function DaftarPengajuan() {
           type="search"
           placeholder="Cari nomor pengajuan atau nama..."
           value={pencarian}
-          onChange={(event) => setPencarian(event.target.value)}
+          onChange={(event) =>
+            setPencarian(event.target.value)
+          }
           aria-label="Cari calon mustahik"
         />
 
-        <select
+        <CustomSelect
+          id="filter-status"
           value={status}
-          onChange={(event) => setStatus(event.target.value)}
-          aria-label="Filter status"
-        >
-          <option value="semua">Semua Status</option>
-          {pilihanStatus.map((nilai) => (
-            <option key={nilai} value={nilai}>
-              {formatStatus(nilai)}
-            </option>
-          ))}
-        </select>
+          options={opsiStatus}
+          onChange={setStatus}
+        />
 
-        <select
+        <CustomSelect
+          id="filter-urutan"
           value={urutan}
-          onChange={(event) => setUrutan(event.target.value)}
-          aria-label="Urutkan pengajuan"
-        >
-          <option value="terbaru">Terbaru</option>
-          <option value="terlama">Terlama</option>
-          <option value="nama">Nama A–Z</option>
-        </select>
+          options={opsiUrutan}
+          onChange={setUrutan}
+        />
       </div>
 
       {!loading && !error && (
@@ -157,7 +201,9 @@ function DaftarPengajuan() {
         </p>
       )}
 
-      {loading && <p>Memuat daftar calon mustahik...</p>}
+      {loading && (
+        <p>Memuat daftar calon mustahik...</p>
+      )}
 
       {!loading && error && (
         <p className="pengajuan-error" role="alert">
@@ -165,57 +211,80 @@ function DaftarPengajuan() {
         </p>
       )}
 
-      {!loading && !error && daftarTampil.length === 0 && (
-        <div className="pengajuan-empty">
-          <h3>Tidak ada pengajuan ditemukan</h3>
-          <p>
-            {dataPengajuan.length === 0
-              ? "Belum ada data pengajuan."
-              : "Coba ubah pencarian atau filter status."}
-          </p>
-        </div>
-      )}
+      {!loading &&
+        !error &&
+        daftarTampil.length === 0 && (
+          <div className="pengajuan-empty">
+            <h3>Tidak ada pengajuan ditemukan</h3>
 
-      {!loading && !error && daftarTampil.length > 0 && (
-        <div className="pengajuan-card-grid">
-          {daftarTampil.map((item, index) => (
-            <article
-              className="pengajuan-card"
-              key={item.nik || item.nomor_pengajuan || index}
-            >
-              <span className="pengajuan-label">Nomor Pengajuan</span>
-              <strong className="pengajuan-nomor">
-                {item.nomor_pengajuan || "-"}
-              </strong>
+            <p>
+              {dataPengajuan.length === 0
+                ? "Belum ada data pengajuan."
+                : "Coba ubah pencarian atau filter status."}
+            </p>
+          </div>
+        )}
 
-              <h2>{item.nama_lengkap || "Nama belum tersedia"}</h2>
-
-              <p className="pengajuan-tanggal">
-                Tanggal: {formatTanggal(item.created_at)}
-              </p>
-
-              <span className="pengajuan-status">
-                {formatStatus(item.status_pengajuan)}
-              </span>
-
-              <button
-                type="button"
-                className="pengajuan-detail-button"
-                onClick={() => {
-                  const id = item.nik || item.nomor_pengajuan;
-                  if (!id) return;
-
-                  navigate(
-                    `/admin/daftar-pengajuan/${encodeURIComponent(id)}`
-                  );
-                }}
+      {!loading &&
+        !error &&
+        daftarTampil.length > 0 && (
+          <div className="pengajuan-card-grid">
+            {daftarTampil.map((item, index) => (
+              <article
+                className="pengajuan-card"
+                key={
+                  item.nik ||
+                  item.nomor_pengajuan ||
+                  index
+                }
               >
-                Lihat Rincian →
-              </button>
-            </article>
-          ))}
-        </div>
-      )}
+                <span className="pengajuan-label">
+                  Nomor Pengajuan
+                </span>
+
+                <strong className="pengajuan-nomor">
+                  {item.nomor_pengajuan || "-"}
+                </strong>
+
+                <h2>
+                  {item.nama_lengkap ||
+                    "Nama belum tersedia"}
+                </h2>
+
+                <p className="pengajuan-tanggal">
+                  Tanggal:{" "}
+                  {formatTanggal(item.created_at)}
+                </p>
+
+                <span className="pengajuan-status">
+                  {formatStatus(item.status_pengajuan)}
+                </span>
+
+                <button
+                  type="button"
+                  className="pengajuan-detail-button"
+                  onClick={() => {
+                    const nik = item.nik;
+
+                    if (!nik) {
+                      console.error(
+                        "NIK pengajuan tidak tersedia:",
+                        item
+                      );
+                      return;
+                    }
+
+                    navigate(
+                      `/admin/pengajuan/${encodeURIComponent(nik)}`
+                    );
+                  }}
+                >
+                  Lihat Rincian →
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
     </main>
   );
 }

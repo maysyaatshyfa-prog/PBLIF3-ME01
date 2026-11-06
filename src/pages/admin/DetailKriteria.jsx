@@ -1,6 +1,8 @@
+import "../../index.css";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
 
 const dataKriteriaAwal = [
   {
@@ -49,17 +51,31 @@ const namaAsnaf = {
 
 function DetailKriteria() {
   const { asnaf } = useParams();
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [itemDetail, setItemDetail] = useState(null);
 
   const [dataKriteria, setDataKriteria] = useState(() => {
     try {
-      const dataTersimpan = localStorage.getItem(`kriteria-${asnaf}`);
+      const dataTersimpan = localStorage.getItem(
+        `kriteria-${asnaf}`
+      );
 
-      return dataTersimpan
-        ? JSON.parse(dataTersimpan)
-        : dataKriteriaAwal;
+      if (dataTersimpan) {
+        const data = JSON.parse(dataTersimpan);
+
+        return Array.isArray(data) ? data : dataKriteriaAwal;
+      }
+
+      // Simpan data awal agar halaman builder
+      // membaca daftar pertanyaan yang sama.
+      localStorage.setItem(
+        `kriteria-${asnaf}`,
+        JSON.stringify(dataKriteriaAwal)
+      );
+
+      return dataKriteriaAwal;
     } catch {
       return dataKriteriaAwal;
     }
@@ -67,172 +83,189 @@ function DetailKriteria() {
 
   const nama = namaAsnaf[asnaf] || "Fakir";
 
+  function getStatus(item) {
+    if (item.active === false) {
+      return "Nonaktif";
+    }
+
+    return item.status || "Aktif";
+  }
+
   const dataFilter = dataKriteria.filter((item) => {
+    const kode = item.kode || "";
+    const pertanyaan = item.pertanyaan || "";
+
     return (
-      item.kode.toLowerCase().includes(search.toLowerCase()) ||
-      item.pertanyaan.toLowerCase().includes(search.toLowerCase())
+      kode.toLowerCase().includes(search.toLowerCase()) ||
+      pertanyaan.toLowerCase().includes(search.toLowerCase())
     );
   });
 
-  function hapusKriteria(id) {
-    const yakin = window.confirm(
-      "Apakah kamu yakin ingin menghapus kriteria ini?"
-    );
-
-    if (!yakin) return;
-
-    const dataBaru = dataKriteria.filter((item) => item.id !== id);
-
+  function simpanData(dataBaru) {
     setDataKriteria(dataBaru);
 
     localStorage.setItem(
       `kriteria-${asnaf}`,
       JSON.stringify(dataBaru)
     );
+  }
 
-    if (itemDetail?.id === id) {
+  function bukaTambah() {
+    navigate(`/admin/kriteria/${asnaf}/tambah`);
+  }
+
+  function bukaEdit(item) {
+    navigate(
+      `/admin/kriteria/${asnaf}/${item.id}/edit`
+    );
+  }
+
+  function hapusKriteria(id) {
+    const yakin = window.confirm(
+      "Apakah kamu yakin ingin menghapus pertanyaan ini?"
+    );
+
+    if (!yakin) return;
+
+    const dataBaru = dataKriteria.filter(
+      (item) => String(item.id) !== String(id)
+    );
+
+    simpanData(dataBaru);
+
+    if (
+      itemDetail &&
+      String(itemDetail.id) === String(id)
+    ) {
       setItemDetail(null);
     }
   }
 
   return (
-    <div>
-      <div className="mb-5">
-        <Link
-          to="/admin/kriteria"
-          className="text-sm text-gray-500 hover:text-orange-500"
-        >
+    <div className="detail-kriteria-page">
+      {/* Tombol kembali */}
+      <div className="kriteria-breadcrumb">
+        <Link to="/admin/kriteria">
           ← Kembali ke Kelola Kriteria
         </Link>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {nama}
-        </h1>
+      {/* Judul halaman */}
+      <div className="kriteria-header">
+        <h1>{nama}</h1>
 
-        <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-500">
-          Kelola kriteria dan aturan penilaian yang digunakan untuk
-          membantu mengidentifikasi calon mustahik golongan{" "}
-          {nama.toLowerCase()}.
+        <p>
+          Kelola kriteria dan aturan penilaian yang digunakan
+          untuk membantu mengidentifikasi calon mustahik
+          golongan {nama.toLowerCase()}.
         </p>
       </div>
 
-      <div className="mb-6 w-full max-w-xs rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
-        <p className="text-sm text-gray-500">
-          Kriteria
-        </p>
-
-        <p className="mt-1 text-2xl font-bold text-gray-900">
-          {dataKriteria.length}
-        </p>
+      {/* Statistik kriteria */}
+      <div className="kriteria-summary">
+        <p>Kriteria</p>
+        <strong>{dataKriteria.length}</strong>
       </div>
 
-      <div className="mb-6 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
-        <input
-          type="text"
-          placeholder="Cari kode kriteria atau pertanyaan..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
-        />
-      </div>
-
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500">
-                  No
-                </th>
-
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500">
-                  Kode Kriteria
-                </th>
-
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500">
-                  Pertanyaan
-                </th>
-
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500">
-                  Status
-                </th>
-
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-100">
-              {dataFilter.map((item, index) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-500">
-                    {index + 1}
-                  </td>
-
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {item.kode}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {item.pertanyaan}
-                  </td>
-
-                  <td className="px-6 py-4 text-center">
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                      {item.status}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setItemDetail(item)}
-                        className="rounded-lg px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100"
-                      >
-                        Detail
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          alert(`Edit ${item.kode}`)
-                        }
-                        className="rounded-lg px-3 py-2 text-xs font-medium text-orange-500 hover:bg-orange-50"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => hapusKriteria(item.id)}
-                        className="rounded-lg px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-
-              {dataFilter.length === 0 && (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-10 text-center text-gray-500"
-                  >
-                    Kriteria tidak ditemukan.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* Pencarian dan tombol tambah */}
+      <div className="kriteria-toolbar">
+        <div className="kriteria-search">
+          <input
+            type="text"
+            placeholder="Cari kode kriteria atau pertanyaan..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
+
+        <button
+          type="button"
+          className="kriteria-button"
+          onClick={bukaTambah}
+        >
+          + Tambah Pertanyaan
+        </button>
       </div>
 
+      {/* Tabel kriteria */}
+      <div className="kriteria-table-wrapper">
+        <table className="kriteria-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Kode Kriteria</th>
+              <th>Pertanyaan</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {dataFilter.map((item, index) => (
+              <tr key={item.id}>
+                <td>{index + 1}</td>
+
+                <td>{item.kode || "-"}</td>
+
+                <td>{item.pertanyaan || "-"}</td>
+
+                <td>
+                  <span
+                    className={`transaksi-status ${
+                      getStatus(item) === "Aktif"
+                        ? "status-berhasil"
+                        : ""
+                    }`}
+                  >
+                    {getStatus(item)}
+                  </span>
+                </td>
+
+                <td>
+                  <div className="kriteria-actions">
+                    {/* Detail satu pertanyaan */}
+                    <button
+                      type="button"
+                      className="kriteria-action detail"
+                      onClick={() => setItemDetail(item)}
+                    >
+                      Detail
+                    </button>
+
+                    {/* Edit seluruh kuesioner asnaf */}
+                    <button
+                      type="button"
+                      className="kriteria-action edit"
+                      onClick={() => bukaEdit(item)}
+                    >
+                      Edit
+                    </button>
+
+                    {/* Hapus satu pertanyaan */}
+                    <button
+                      type="button"
+                      className="kriteria-action delete"
+                      onClick={() => hapusKriteria(item.id)}
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+
+            {dataFilter.length === 0 && (
+              <tr>
+                <td colSpan={5} className="kriteria-empty">
+                  Kriteria tidak ditemukan.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal Detail satu pertanyaan */}
       {itemDetail &&
         createPortal(
           <div
@@ -274,6 +307,36 @@ function DetailKriteria() {
               <div className="kriteria-modal-field">
                 <span>Pertanyaan</span>
                 <p>{itemDetail.pertanyaan || "-"}</p>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Jenis Jawaban</span>
+                <strong>
+                  {itemDetail.tipeJawaban || "Belum ditentukan"}
+                </strong>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Wajib Diisi</span>
+                <strong>
+                  {itemDetail.wajibDiisi === false
+                    ? "Tidak"
+                    : "Ya"}
+                </strong>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Bukti Pendukung</span>
+                <strong>
+                  {itemDetail.requireEvidence
+                    ? "Wajib"
+                    : "Tidak wajib"}
+                </strong>
+              </div>
+
+              <div className="kriteria-modal-field">
+                <span>Status</span>
+                <strong>{getStatus(itemDetail)}</strong>
               </div>
 
               <div className="kriteria-modal-footer">
