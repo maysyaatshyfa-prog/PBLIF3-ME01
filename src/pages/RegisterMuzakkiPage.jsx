@@ -1,6 +1,42 @@
+
 import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
 
 function RegisterMuzakkiPage() {
+
+    // Fungsi registrasi akun Muzakki
+    const handleRegister = async (event) => {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const formData = new FormData(form);
+
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch("http://localhost:5000/api/pemberi", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(hasil.message || "Registrasi gagal.");
+            }
+
+            alert(hasil.message);
+            form.reset();
+
+        } catch (error) {
+            console.error("Gagal registrasi:", error);
+            alert(error.message || "Terjadi kesalahan saat registrasi.");
+        }
+    };
+
     return (
         <div className="register-muzakki-page">
 
@@ -39,7 +75,10 @@ function RegisterMuzakkiPage() {
                 </div>
 
                 {/* Form */}
-                <div className="register-form-card">
+                <form
+                    className="register-form-card"
+                    onSubmit={handleRegister}
+                >
 
                     <h2>Buat Akun Muzakki</h2>
 
@@ -52,6 +91,7 @@ function RegisterMuzakkiPage() {
                             id="nama_lengkap"
                             name="nama_lengkap"
                             placeholder="Masukkan nama lengkap"
+                            required
                         />
                     </div>
 
@@ -62,6 +102,7 @@ function RegisterMuzakkiPage() {
                             id="email"
                             name="email"
                             placeholder="Masukkan email"
+                            required
                         />
                     </div>
 
@@ -72,10 +113,11 @@ function RegisterMuzakkiPage() {
                             id="no_hp"
                             name="no_hp"
                             placeholder="Masukkan nomor HP"
+                            required
                         />
                     </div>
 
-                    {/* Input baru: Alamat Lengkap */}
+                    {/* Alamat Lengkap */}
                     <div className="form-group">
                         <label htmlFor="alamat_lengkap">
                             Alamat Lengkap
@@ -88,7 +130,7 @@ function RegisterMuzakkiPage() {
                         />
                     </div>
 
-                    {/* Input baru: NIK */}
+                    {/* NIK */}
                     <div className="form-group">
                         <label htmlFor="nik">NIK</label>
                         <input
@@ -103,7 +145,7 @@ function RegisterMuzakkiPage() {
                         />
                     </div>
 
-                    {/* Input baru: NPWP */}
+                    {/* NPWP */}
                     <div className="form-group">
                         <label htmlFor="npwp">NPWP</label>
                         <input
@@ -123,6 +165,7 @@ function RegisterMuzakkiPage() {
                             id="password"
                             name="password"
                             placeholder="Masukkan password"
+                            required
                         />
                     </div>
 
@@ -135,19 +178,23 @@ function RegisterMuzakkiPage() {
                             id="konfirmasi_password"
                             name="konfirmasi_password"
                             placeholder="Ulangi password"
+                            required
                         />
                     </div>
 
-                    <button type="button" className="register-submit">
+                    <button
+                        type="submit"
+                        className="register-submit"
+                    >
                         Daftar Akun
                     </button>
 
                     <div className="register-login-text">
                         Sudah memiliki akun?
-                        <a href="/login"> Masuk di sini</a>
+                        <Link to="/login"> Masuk di sini</Link>
                     </div>
 
-                </div>
+                </form>
 
             </div>
 
