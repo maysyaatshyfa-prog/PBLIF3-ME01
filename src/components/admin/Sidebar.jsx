@@ -1,9 +1,10 @@
+
 import { NavLink } from "react-router-dom";
 import zakataraLogo from "../../assets/zakatara-logo.png";
 
 const menu = [
   { nama: "Beranda", path: "/admin" },
-  { nama: "Daftar Pengajuan", path: "/admin/daftar-pengajuan" },
+  { nama: "Daftar Pengajuan", path: "/admin/pengajuan" },
   { nama: "Daftar Pengguna", path: "/admin/pengguna" },
   { nama: "Kelola Kriteria", path: "/admin/kriteria" },
   { nama: "Kelola Transaksi", path: "/admin/transaksi" },
@@ -12,45 +13,60 @@ const menu = [
   { nama: "Penyaluran Dana", path: "/admin/penyaluran-dana" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
   return (
-    <aside className="admin-sidebar">
-      {/* Logo Zakatara */}
-      <div className="sidebar-brand">
-        <img
-          src={zakataraLogo}
-          alt="Zakatara - Tunaikan Zakat, Raih Berkah"
-          className="sidebar-brand-logo"
+    <>
+      {isOpen && (
+        <div
+          className="admin-sidebar-overlay"
+          onClick={onClose}
         />
-      </div>
+      )}
 
-      {/* Menu navigasi */}
-      <nav className="sidebar-navigation">
-        <p className="sidebar-menu-label">MENU</p>
+      <aside className={`admin-sidebar ${isOpen ? "sidebar-open" : ""}`}>
+        <div className="sidebar-brand">
+          <img
+            src={zakataraLogo}
+            alt="Zakatara - Tunaikan Zakat, Raih Berkah"
+            className="sidebar-brand-logo"
+          />
 
-        <div className="sidebar-menu-list">
-          {menu.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/admin"}
-              className={({ isActive }) =>
-                `sidebar-link${isActive ? " active" : ""}`
-              }
-            >
-              {item.nama}
-            </NavLink>
-          ))}
+          <button
+            type="button"
+            className="sidebar-close"
+            onClick={onClose}
+            aria-label="Tutup menu"
+          >
+            ×
+          </button>
         </div>
-      </nav>
 
-      {/* Tombol keluar */}
-      <div className="sidebar-bottom">
-        <button type="button" className="sidebar-logout">
-          Keluar
-        </button>
-      </div>
-    </aside>
+        <nav className="sidebar-navigation">
+          <p className="sidebar-menu-label">MENU</p>
+
+          <div className="sidebar-menu-list">
+            {menu.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/admin"}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `sidebar-link${isActive ? " active" : ""}`
+                }
+              >
+                {item.nama}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+
+        <div className="sidebar-bottom">
+          <button type="button" className="sidebar-logout">
+            Keluar
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
-
