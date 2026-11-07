@@ -6692,7 +6692,6 @@ body {
   }
 }
 
-
 /* =====================================
 CSS NYA HILDAA
 ===================================== */
@@ -6707,7 +6706,7 @@ CSS NYA HILDAA
   min-height: 100vh;
   background: #f7f8fa;
   color: #263247;
-  font-family: Arial, sans-serif;
+  font-family: Inter, sans-serif;
 }
 
 /* =========================================
@@ -6723,12 +6722,14 @@ CSS NYA HILDAA
   width: 250px;
   height: 100vh;
   overflow-y: auto;
-  background: #e7e8eb;
-  border-right: 1px solid #d9dce2;
+  background: #e7e8eb !important;
+  border-right: 1px solid #d9dce2 !important;
   box-sizing: border-box;
 }
 
-/* Logo */
+/* =========================================
+   LOGO
+========================================= */
 
 .sidebar-brand {
   display: flex;
@@ -6748,11 +6749,15 @@ CSS NYA HILDAA
   object-fit: contain;
 }
 
-/* Navigasi */
+/* =========================================
+   NAVIGASI
+========================================= */
 
 .sidebar-navigation {
   flex: 1;
   padding: 25px 12px;
+  padding-left: 5px !important;
+  padding-right: 12px !important;
   box-sizing: border-box;
 }
 
@@ -6760,7 +6765,7 @@ CSS NYA HILDAA
   margin: 0 12px 14px;
   color: #858c98;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 1.1px;
 }
 
@@ -6774,12 +6779,13 @@ CSS NYA HILDAA
   display: flex;
   align-items: center;
   min-height: 44px;
-  padding: 11px 14px;
+  padding: 11px 10px;
   border-radius: 9px;
   color: #4b5565;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;
+  text-align: left;
   text-decoration: none;
   overflow-wrap: anywhere;
   box-sizing: border-box;
@@ -6798,32 +6804,44 @@ CSS NYA HILDAA
   box-shadow: 0 2px 6px rgba(25, 30, 40, 0.06);
 }
 
-/* Tombol Keluar */
 
-.sidebar-bottom {
+/* =========================================
+   TOMBOL KELUAR ADMIN
+========================================= */
+
+.admin-sidebar .sidebar-bottom {
   margin: 0 16px;
   padding: 15px 0 20px;
   border-top: 1px solid #cdd0d5;
 }
 
-.sidebar-logout {
+.admin-sidebar .sidebar-bottom .sidebar-logout {
   display: block;
-  width: 100%;
+  width: auto !important;
+  min-width: 0;
   padding: 11px 12px;
+  margin: 0;
   border: none;
   border-radius: 8px;
-  background: transparent;
-  color: #555d69;
+  background: transparent !important;
+  color: #555d69 !important;
   font-family: inherit;
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
-.sidebar-logout:hover {
-  background: #ffffff;
-  color: #d9534f;
+.admin-sidebar .sidebar-bottom .sidebar-logout:hover,
+.admin-sidebar .sidebar-bottom .sidebar-logout:focus,
+.admin-sidebar .sidebar-bottom .sidebar-logout:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #555d69 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: none !important;
 }
 
 /* =========================================
@@ -12052,8 +12070,6 @@ body {
 
 /* =========================================================
    FIX SIDEBAR ADMIN DESKTOP
-   Sidebar tetap penuh setinggi layar saat konten di-scroll.
-   Aturan mobile/tablet tetap menggunakan sidebar di atas konten.
 ========================================================= */
 @media screen and (min-width: 769px) {
   .admin-layout {
@@ -12083,26 +12099,460 @@ body {
   }
 }
 
+
+/* HAMBURGER SIDEBAR */
+
+.admin-mobile-header {
+  display: none;
+}
+
+.sidebar-close {
+  display: none;
+}
+
+.admin-sidebar-overlay {
+  display: none;
+}
+
 @media screen and (max-width: 768px) {
   .admin-layout {
     display: flex;
     flex-direction: column;
   }
 
+  .admin-mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 60px;
+    padding: 0 18px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  .admin-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 38px;
+    height: 38px;
+    padding: 7px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .admin-hamburger span {
+    width: 24px;
+    height: 3px;
+    background: #333333;
+    border-radius: 3px;
+  }
+
+  .admin-mobile-title {
+    color: #d97706;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
   .admin-sidebar {
-    position: relative;
-    top: auto;
-    left: auto;
-    bottom: auto;
-    width: 100%;
-    min-width: 0;
-    height: auto;
-    max-height: none;
-    overflow: visible;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 250px;
+    min-width: 250px;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.3s ease, visibility 0.3s ease;
+    background: #ffffff;
+  }
+
+  .admin-sidebar.sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 15px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .admin-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    background: rgba(0, 0, 0, 0.45);
   }
 
   .admin-main {
     width: 100%;
+    min-width: 0;
     margin-left: 0;
   }
 }
+
+/* =========================================
+   ADMIN LAYOUT
+========================================= */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* =========================================
+   SIDEBAR DESKTOP
+========================================= */
+
+.admin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 250px;
+  min-width: 250px;
+  height: 100vh;
+  height: 100dvh;
+
+  padding: 20px 16px;
+
+  background-color: #ffffff;
+  border-right: 1px solid #eeeeee;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  transition: transform 0.3s ease;
+}
+
+/* Logo */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  width: 100%;
+  padding: 10px 0 25px;
+}
+
+.sidebar-brand-logo {
+  display: block;
+  width: 185px;
+  max-width: 100%;
+  height: 60px;
+  object-fit: contain;
+}
+
+/* Navigasi */
+.sidebar-navigation {
+  flex: 1;
+  width: 100%;
+}
+
+.sidebar-menu-label {
+  margin: 10px 12px 15px;
+
+  color: #999999;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.sidebar-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Link menu */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 44px;
+
+  padding: 12px 14px;
+
+  color: #444444;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  color: #d97706;
+  background-color: #fff7ed;
+}
+
+.sidebar-link.active {
+  color: #ffffff;
+  background-color: #d97706;
+  font-weight: 600;
+}
+
+/* Bagian bawah sidebar */
+.sidebar-bottom {
+  width: 100%;
+  padding-top: 20px;
+  margin-top: auto;
+}
+
+.sidebar-logout {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 10px 14px;
+
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+
+  background-color: #fff1f2;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.sidebar-logout:hover {
+  background-color: #ffe4e6;
+}
+
+/* =========================================
+   KONTEN ADMIN DESKTOP
+========================================= */
+
+.admin-main {
+  width: calc(100% - 250px);
+  min-width: 0;
+  min-height: 100vh;
+
+  margin-left: 250px;
+}
+
+.admin-content {
+  width: 100%;
+  max-width: 1600px;
+  padding: 25px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   HEADER HAMBURGER
+========================================= */
+
+.admin-mobile-header {
+  display: none;
+}
+
+.admin-hamburger {
+  display: none;
+}
+
+.sidebar-close {
+  display: none;
+}
+
+.admin-sidebar-overlay {
+  display: none;
+}
+
+/* =========================================
+   TABLET DAN HP
+========================================= */
+
+@media screen and (max-width: 768px) {
+
+  .admin-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Header mobile */
+  .admin-mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    position: sticky;
+    top: 0;
+    z-index: 90;
+
+    width: 100%;
+    min-height: 60px;
+
+    padding: 0 18px;
+
+    background-color: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  /* Tombol hamburger */
+  .admin-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+
+    width: 38px;
+    height: 38px;
+    padding: 7px;
+
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+
+    cursor: pointer;
+  }
+
+  .admin-hamburger span {
+    display: block;
+    width: 24px;
+    height: 3px;
+
+    background-color: #333333;
+    border-radius: 3px;
+  }
+
+  /* Judul header */
+  .admin-mobile-title {
+    color: #d97706;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* Sidebar tersembunyi */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+
+    width: 250px;
+    min-width: 250px;
+    height: 100vh;
+    height: 100dvh;
+
+    background-color: #ffffff;
+
+    transform: translateX(-100%);
+    visibility: hidden;
+
+    transition:
+      transform 0.3s ease,
+      visibility 0.3s ease;
+  }
+
+  /* Sidebar terbuka */
+  .admin-sidebar.sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  /* Tombol tutup sidebar */
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+
+    color: #d97706;
+    font-size: 25px;
+
+    background-color: #fff3e0;
+    border: none;
+    border-radius: 6px;
+
+    cursor: pointer;
+  }
+
+  .sidebar-brand {
+    justify-content: space-between;
+  }
+
+  /* Overlay belakang sidebar */
+  .admin-sidebar-overlay {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+
+    background-color: rgba(0, 0, 0, 0.45);
+  }
+
+  /* Konten utama */
+  .admin-main {
+    width: 100%;
+    min-width: 0;
+    min-height: calc(100vh - 60px);
+
+    margin-left: 0;
+  }
+
+  .admin-content {
+    width: 100%;
+    padding: 20px;
+  }
+}
+
+/* =========================================
+   HP KECIL
+========================================= */
+
+@media screen and (max-width: 480px) {
+
+  .admin-mobile-header {
+    min-height: 55px;
+    padding: 0 14px;
+  }
+
+  .admin-content {
+    padding: 15px;
+  }
+
+  .admin-sidebar {
+    width: 250px;
+    min-width: 250px;
+  }
+}
+
