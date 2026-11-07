@@ -1,6 +1,6 @@
 /* global process, require, __dirname */
 
-require("dotenv").config();
+require("dotenv").config(); 
 
 const express = require("express");
 const bcrypt = require("bcryptjs");
@@ -408,6 +408,138 @@ app.post("/api/penerima", async (req, res) => {
 
         return res.status(500).json({
             message: "Gagal menyimpan data ke database.",
+        });
+    }
+});
+
+
+/* ==================================================
+   REGISTRASI AKUN MUZAKKI
+================================================== */
+
+app.post("/api/pemberi", async (req, res) => {
+    try {
+        const {
+            nama_lengkap,
+            alamat_lengkap,
+            email,
+            no_hp,
+            nik,
+            npwp,
+            password,
+            konfirmasi_password,
+        } = req.body;
+
+        // 1. Validasi data wajib
+        if (
+            !nama_lengkap?.trim() ||
+            !email?.trim() ||
+            !no_hp?.trim() ||
+            !password ||
+            !konfirmasi_password
+        ) {
+            return res.status(400).json({
+                message: "Data wajib belum lengkap.",
+            });
+        }
+
+        // 2. Normalisasi data
+        const namaValue = nama_lengkap.trim();
+        const alamatValue = alamat_lengkap?.trim() || null;
+        const emailValue = email.trim().toLowerCase();
+        const noHpValue = no_hp.trim();
+        const nikValue = nik?.trim() || null;
+        const npwpValue = npwp?.trim() || null;
+
+        // 3. Validasi email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(emailValue)) {
+            return res.status(400).json({
+                message: "Format email tidak valid.",
+            });
+        }
+
+        // 4. Validasi nomor HP
+        if (!/^\d{10,15}$/.test(noHpValue)) {
+            return res.status(400).json({
+                message: "Nomor HP harus terdiri dari 10-15 digit angka.",
+            });
+        }
+
+        // 5. Validasi NIK jika diisi
+        if (nikValue && !/^\d{16}$/.test(nikValue)) {
+            return res.status(400).json({
+                message: "NIK harus terdiri dari 16 digit angka.",
+            });
+        }
+
+        // 6. Validasi NPWP jika diisi
+        if (npwpValue && !/^\d{16}$/.test(npwpValue)) {
+            return res.status(400).json({
+                message: "NPWP harus terdiri dari 16 digit angka.",
+            });
+        }
+
+        // 7. Validasi password
+        if (password.length < 8) {
+            return res.status(400).json({
+                message: "Password minimal 8 karakter.",
+            });
+        }
+
+        if (password !== konfirmasi_password) {
+            return res.status(400).json({
+                message: "Konfirmasi password tidak sesuai.",
+            });
+        }
+
+        // 8. Enkripsi password
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        // 9. Simpan data ke tabel pemberi
+        const [hasil] = await db.execute(
+            `INSERT INTO pemberi (
+                nama_lengkap,
+                alamat_lengkap,
+                email,
+                no_hp,
+                password,
+                nik,
+                npwp
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+                namaValue,
+                alamatValue,
+                emailValue,
+                noHpValue,
+                passwordHash,
+                nikValue,
+                npwpValue,
+            ]
+        );
+
+        return res.status(201).json({
+            message: "Registrasi akun Muzakki berhasil.",
+            akun: {
+                id_pemberi: hasil.insertId,
+                nama_lengkap: namaValue,
+                email: emailValue,
+            },
+        });
+
+    } catch (error) {
+        console.error("Gagal registrasi Muzakki:", error);
+
+        // Email, nomor HP, NIK, atau NPWP sudah digunakan
+        if (error.code === "ER_DUP_ENTRY") {
+            return res.status(409).json({
+                message: "Email, nomor HP, NIK, atau NPWP sudah terdaftar.",
+            });
+        }
+
+        return res.status(500).json({
+            message: "Terjadi kesalahan saat registrasi akun Muzakki.",
         });
     }
 });
@@ -1930,68 +2062,73 @@ app.get("/api/admin", async (req, res) => {
 // KONSTANTA ASNAF UNTUK API KRITERIA
 // ==================================================
 
+// ==================================================
+// API KRITERIA PAKAR
+// ==================================================
+
 const LABEL_ASNAF_KRITERIA = {
     fakir: "Fakir",
     miskin: "Miskin",
     amil: "Amil",
-    muallaf: "Mualaf",
+    muallaf: "Muallaf",
     riqab: "Riqab",
     gharim: "Gharim",
     fisabilillah: "Fi Sabilillah",
     "ibnu-sabil": "Ibnu Sabil",
 };
 
+app.get("/api/admin/kriteria", async (req, res) => {
+    try {
+        const asnaf = String(req.query.asnaf || "")
+            .trim()
+            .toLowerCase();
 
-// ==================================================
-// 18. AMBIL KRITERIA PAKAR BERDASARKAN ASNAF
-// ==================================================
+        let sql = `
+            SELECT
+                id_kriteria,
+                nama_kriteria,
+                bobot_kriteria
+            FROM kriteria_pakar
+        `;
 
-app.get(
-    "/api/admin/kriteria",
-    async (req, res) => {
-        try {
-            const asnaf = String(
-                req.query.asnaf || ""
-            ).trim().toLowerCase();
+        let values = [];
 
-            const labelAsnaf =
-                LABEL_ASNAF_KRITERIA[asnaf];
+        // Jika asnaf dikirim, tampilkan kriteria sesuai asnaf.
+        if (asnaf) {
+            const labelAsnaf = LABEL_ASNAF_KRITERIA[asnaf];
 
             if (!labelAsnaf) {
                 return res.status(400).json({
-                    message:
-                        "Golongan asnaf tidak valid.",
+                    message: "Golongan asnaf tidak valid.",
                 });
             }
 
-            const [rows] = await db.execute(
-                `SELECT
-                    id_kriteria,
-                    nama_kriteria,
-                    bobot_kriteria
-                 FROM kriteria_pakar
-                 WHERE LOWER(nama_kriteria) LIKE LOWER(?)
-                 ORDER BY id_kriteria ASC`,
-                [`${labelAsnaf} -%`]
-            );
+            sql += `
+                WHERE LOWER(nama_kriteria) LIKE LOWER(?)
+            `;
 
-            return res.json({
-                data: rows,
-            });
-        } catch (error) {
-            console.error(
-                "Gagal mengambil kriteria:",
-                error.message
-            );
-
-            return res.status(500).json({
-                message:
-                    "Gagal mengambil kriteria.",
-            });
+            values.push(`${labelAsnaf} -%`);
         }
-    }
-);
 
+        sql += ` ORDER BY id_kriteria ASC`;
+
+        const [rows] = await db.execute(sql, values);
+
+        return res.status(200).json({
+            total: rows.length,
+            data: rows,
+        });
+    } catch (error) {
+        console.error(
+            "Gagal mengambil data kriteria:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Gagal mengambil data kriteria.",
+        });
+    }
+});
 // ================================================
 // AMBIL SEMUA PERTANYAAN KUESIONER
 // ================================================
@@ -2064,7 +2201,39 @@ app.get(
         }
     }
 );
+// ==================================================
+// 18. AMBIL DAFTAR KRITERIA
+// ==================================================
 
+app.get(
+    "/api/admin/kriteria",
+    async (req, res) => {
+        try {
+            const [rows] = await db.execute(
+                `SELECT
+                    id_kriteria,
+                    nama_kriteria,
+                    bobot_kriteria
+                 FROM kriteria_pakar
+                 ORDER BY id_kriteria ASC`
+            );
+
+            return res.json({
+                data: rows,
+            });
+        } catch (error) {
+            console.error(
+                "Gagal mengambil data kriteria:",
+                error.message
+            );
+
+            return res.status(500).json({
+                message:
+                    "Gagal mengambil data kriteria.",
+            });
+        }
+    }
+);
 // ==================================================
 // 19. AMBIL PERTANYAAN BERDASARKAN ID KRITERIA
 // ==================================================
