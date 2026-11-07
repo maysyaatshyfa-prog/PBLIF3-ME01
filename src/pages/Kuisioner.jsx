@@ -507,11 +507,11 @@ function Kuisioner() {
                     nikPenerima
                 );
 
-                // Backend upload membutuhkan ID KRITERIA.
-                formData.append(
-                    "id_kriteria",
-                    String(question.id_kriteria)
-                );
+                // Backend membutuhkan ID PERTANYAAN.
+                   formData.append(
+                   "id_pertanyaan",
+                   String(question.id)
+               );
 
                 const uploadResponse = await fetch(
                     `${API_URL}/bukti-pendukung`,
