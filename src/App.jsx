@@ -1,4 +1,3 @@
-
 import {
     BrowserRouter,
     Routes,
@@ -34,6 +33,7 @@ import ProfilPenerima from "./pages/ProfilPenerima";
 import DashboardPemberi from "./pages/DashboardPemberi";
 import InformasiZakat from "./pages/InformasiZakat";
 import DaftarEvent from "./pages/DaftarEvent";
+import DetailEvent from "./pages/DetailEvent";
 import RiwayatDonasi from "./pages/RiwayatDonasi";
 
 // Halaman admin
@@ -124,6 +124,11 @@ function App() {
                     <Route
                         path="/daftarevent"
                         element={<DaftarEvent />}
+                    />
+
+                    <Route
+                        path="/detailevent/:id"
+                        element={<DetailEvent />}
                     />
 
                     <Route
