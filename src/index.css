@@ -27,23 +27,28 @@ body {
   background-color: var(--white);
 }
 
-/* =========================
+/* ==================================================
    NAVBAR
-========================= */
+================================================== */
 
 .navbar {
-  height: 60px;
+  width: 100%;
+  min-height: 60px;
   padding: 0 65px;
+  box-sizing: border-box;
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   background-color: var(--white);
 }
 
 .logo {
-  position: absolute;
-  left: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
 }
 
 .logo img {
@@ -53,20 +58,23 @@ body {
 }
 
 .nav-menu {
-  margin-left: 400px;
-  margin-right: auto;
+  margin: 0 auto;
 
   display: flex;
   align-items: center;
-  gap: 85px;
+  justify-content: center;
+  gap: clamp(20px, 3.5vw, 55px);
+
+  flex-shrink: 1;
 }
 
 .nav-menu a {
   color: var(--black);
   text-decoration: none;
-
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
 .nav-menu a:hover {
@@ -77,22 +85,24 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
-.btn-masuk {
-  text-decoration: none;
-  color: #111111;
-  border: 1px solid var(--orange);
-  padding: 10px 22px;
-  border-radius: 8px;
-}
-
+.btn-masuk,
 .btn-Registrasi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   text-decoration: none;
   color: #111111;
+
   border: 1px solid var(--orange);
   padding: 10px 22px;
   border-radius: 8px;
+  white-space: nowrap;
+
+  transition: 0.2s ease;
 }
 
 .btn-masuk:hover,
@@ -102,177 +112,9 @@ body {
   background-color: var(--orange);
 }
 
-/* =========================
-   FOOTER
-========================= */
-
-.footer {
-  width: 100%;
-  background-color: var(--black);
-  color: var(--white);
-  padding: 65px 65px 0;
-}
-
-.footer-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
-  gap: 60px;
-
-  padding-bottom: 55px;
-}
-
-/* =========================
-   BRAND
-========================= */
-
-.footer-brand h2 {
-  margin: 0;
-
-  font-family: var(--font-title);
-  font-size: 27px;
-  font-weight: 600;
-
-  color: var(--white);
-}
-
-.footer-brand h3 {
-  margin: 2px 0 18px;
-
-  color: var(--orange);
-
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.footer-brand p {
-  max-width: 300px;
-
-  margin: 0;
-
-  color: #bdbdbd;
-
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-/* =========================
-   FOOTER COLUMN
-========================= */
-
-.footer-column {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.footer-column h4 {
-  margin: 4px 0 20px;
-
-  color: var(--orange);
-
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.footer-column a {
-  margin-bottom: 11px;
-
-  color: #D6D6D6;
-
-  font-size: 13px;
-  text-decoration: none;
-
-  transition: color 0.2s ease;
-}
-
-.footer-column a:hover {
-  color: var(--orange);
-}
-
-/* =========================
-   ABOUT
-========================= */
-
-.footer-about p {
-  max-width: 280px;
-
-  margin: 0;
-
-  color: #bdbdbd;
-
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-/* =========================
-   FOOTER BOTTOM
-========================= */
-
-.footer-bottom {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  padding: 20px 0;
-
-  border-top: 1px solid #333;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.footer-bottom p {
-  margin: 0;
-
-  color: #999;
-
-  font-size: 11px;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 900px) {
-
-  .footer-container {
-    grid-template-columns: 1fr 1fr;
-    gap: 45px;
-  }
-
-}
-
-@media (max-width: 600px) {
-
-  .footer {
-    padding: 50px 25px 0;
-  }
-
-  .footer-container {
-    grid-template-columns: 1fr;
-    gap: 35px;
-    padding-bottom: 40px;
-  }
-
-  .footer-bottom {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-}
-
-/* =========================
+/* ==================================================
    HERO
-========================= */
+================================================== */
 
 .hero {
   min-height: 150px;
@@ -294,19 +136,16 @@ body {
 
 .hero::before {
   content: "";
-
   position: absolute;
   inset: 0;
-
   background-color: rgba(0, 0, 0, 0.35);
 }
 
 .hero-overlay {
   position: relative;
   z-index: 1;
-
+  width: 100%;
   max-width: 750px;
-
   color: white;
 }
 
@@ -347,7 +186,6 @@ body {
 
 .hero-button {
   display: inline-block;
-
   padding: 13px 24px;
 
   border-radius: 30px;
@@ -369,9 +207,10 @@ body {
   transform: translateY(-2px);
 }
 
-/* =========================
+
+/* ==================================================
    TENTANG SISTEM
-========================= */
+================================================== */
 
 .features {
   min-height: 260px;
@@ -412,6 +251,7 @@ body {
 
 .features-text>p:last-child {
   max-width: 500px;
+  margin: 0;
 
   color: #555555;
 
@@ -421,9 +261,10 @@ body {
   text-align: justify;
 }
 
-/* =========================
+
+/* ==================================================
    FEATURE CARDS
-========================= */
+================================================== */
 
 .features-cards {
   flex: 1;
@@ -438,6 +279,7 @@ body {
   width: 250px;
   min-height: 200px;
   padding: 25px;
+
   border-radius: 20px;
   background-color: var(--gray);
 
@@ -455,9 +297,11 @@ body {
   width: 40px;
   height: 40px;
   margin-bottom: 20px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border-radius: 50%;
   background-color: var(--orange);
 }
@@ -483,18 +327,23 @@ body {
   line-height: 1.5;
 }
 
-/* =========================
-  STEPS
-========================= */
+
+/* ==================================================
+   STEPS
+================================================== */
+
 .steps {
-  padding: 100px 65px;
-  background-color: var(--white, #ffffff);
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 100px 65px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  background-color: var(--white, #ffffff);
+  box-sizing: border-box;
 }
 
 .steps-header,
@@ -504,11 +353,12 @@ body {
   text-align: center;
 }
 
-
 .steps-label,
 .information-label {
   margin-bottom: 12px;
+
   color: var(--orange, #F7941D);
+
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -518,25 +368,31 @@ body {
 .steps-header h2,
 .information-header h2 {
   margin-bottom: 16px;
+
   font-family: var(--font-title, sans-serif);
   font-size: 36px;
   line-height: 1.2;
   font-weight: 600;
+
   color: #111111;
 }
 
 .steps-line {
   display: flex;
   flex-direction: row;
+
   width: 90%;
   max-width: 1050px;
+
   margin-left: 140px;
+
   justify-content: center;
   align-items: flex-start;
 }
 
 .step-item {
   flex: 1;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -550,7 +406,9 @@ body {
 
 .step-number {
   margin-right: 12px;
+
   color: var(--orange, #F7941D);
+
   font-size: 14px;
   font-weight: 700;
 }
@@ -559,20 +417,23 @@ body {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+
   border: 3px solid var(--orange, #F7941D);
   border-radius: 50%;
   background-color: white;
-  cursor: pointer;
 
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-
 .step-item:not(:last-child) .step-top::after {
   content: "";
+
   height: 2px;
   flex: 1;
+
   margin: 0 15px;
+
   background-color: #d9d9d9;
 }
 
@@ -589,17 +450,22 @@ body {
 
 .steps-content h3 {
   margin-bottom: 8px;
+
   font-size: 16px;
   font-weight: 600;
+
   color: #111111;
 }
 
 .steps-content p {
   color: var(--text-gray, #666666);
+
   font-size: 13px;
   line-height: 1.6;
+
   opacity: 0;
   visibility: hidden;
+
   transition: 0.3s ease;
 }
 
@@ -609,9 +475,9 @@ body {
 }
 
 
-/* =========================
+/* ==================================================
    INFORMATION
-========================= */
+================================================== */
 
 .information {
   width: 100%;
@@ -622,6 +488,7 @@ body {
   align-items: center;
 
   background-color: var(--gray);
+  box-sizing: border-box;
 }
 
 .information-header {
@@ -629,9 +496,9 @@ body {
 }
 
 
-/* =========================
+/* ==================================================
    INFORMATION CARDS
-========================= */
+================================================== */
 
 .information-cards {
   width: 100%;
@@ -656,6 +523,8 @@ body {
 
   text-decoration: none;
   color: var(--orange);
+
+  box-sizing: border-box;
 }
 
 .information-number {
@@ -667,9 +536,11 @@ body {
 .information-card h3 {
   margin-top: 30px;
   margin-bottom: 20px;
+
   font-family: var(--font-title);
   font-size: 18px;
   font-weight: 600;
+
   color: var(--black);
 }
 
@@ -683,7 +554,9 @@ body {
 .information-link {
   display: inline-block;
   margin-top: 30px;
+
   color: var(--orange);
+
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -693,6 +566,10 @@ body {
   color: var(--orange-dark);
 }
 
+
+/* ==================================================
+   FLOATING ANIMATION
+================================================== */
 
 @keyframes floating {
   0% {
@@ -713,15 +590,18 @@ body {
 }
 
 
-/* =========================
+/* ==================================================
    MUSTAHIQ & ASNAF PAGE
-========================= */
+================================================== */
 
 .information-detail {
   width: 100%;
   min-height: calc(100vh - 60px);
+
   padding: 80px 65px;
+
   background-color: var(--gray);
+  box-sizing: border-box;
 }
 
 .detail-wrapper {
@@ -735,14 +615,16 @@ body {
   gap: 60px;
 }
 
-/* =========================
-   GAMBAR
-========================= */
+
+/* ==================================================
+   GAMBAR DETAIL
+================================================== */
 
 .detail-image-wrapper {
   display: flex;
   align-items: flex-start;
   justify-content: center;
+
   padding-top: 80px;
 }
 
@@ -750,15 +632,17 @@ body {
   width: 100%;
   max-width: 590px;
   height: auto;
+
   display: block;
 
   object-fit: contain;
   border-radius: 20px;
 }
 
-/* =========================
-   CONTENT
-========================= */
+
+/* ==================================================
+   CONTENT DETAIL
+================================================== */
 
 .detail-content {
   padding: 10px 0;
@@ -803,9 +687,10 @@ body {
   line-height: 1.8;
 }
 
-/* =========================
+
+/* ==================================================
    DETAIL SECTIONS
-========================= */
+================================================== */
 
 .detail-sections {
   display: flex;
@@ -836,19 +721,613 @@ body {
   line-height: 1.7;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
 
-@media (max-width: 768px) {
+/* ==================================================
+   FOOTER
+================================================== */
 
+.footer {
+  width: 100%;
+
+  background-color: var(--black);
+  color: var(--white);
+
+  padding: 65px 65px 0;
+  box-sizing: border-box;
+}
+
+.footer-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  gap: 60px;
+
+  padding-bottom: 55px;
+}
+
+
+/* BRAND */
+
+.footer-brand h2 {
+  margin: 0;
+
+  font-family: var(--font-title);
+  font-size: 27px;
+  font-weight: 600;
+
+  color: var(--white);
+}
+
+.footer-brand h3 {
+  margin: 2px 0 18px;
+
+  color: var(--orange);
+
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.footer-brand p {
+  max-width: 300px;
+  margin: 0;
+
+  color: #bdbdbd;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+
+/* FOOTER COLUMN */
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-column h4 {
+  margin: 4px 0 20px;
+
+  color: var(--orange);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.footer-column a {
+  margin-bottom: 11px;
+
+  color: #D6D6D6;
+
+  font-size: 13px;
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+.footer-column a:hover {
+  color: var(--orange);
+}
+
+
+/* FOOTER ABOUT */
+
+.footer-about p {
+  max-width: 280px;
+  margin: 0;
+
+  color: #bdbdbd;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+
+/* FOOTER BOTTOM */
+
+.footer-bottom {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  padding: 20px 0;
+
+  border-top: 1px solid #333333;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.footer-bottom p {
+  margin: 0;
+
+  color: #999999;
+
+  font-size: 11px;
+}
+
+
+/* ==================================================
+   RESPONSIVE LAPTOP KECIL DAN INFOCUS
+================================================== */
+
+@media screen and (max-width: 1200px) {
+
+  /* NAVBAR */
+  .navbar {
+    padding: 0 35px;
+  }
+
+  .logo img {
+    width: 130px;
+  }
+
+  .nav-menu {
+    gap: clamp(15px, 2.5vw, 30px);
+  }
+
+  .nav-menu a {
+    font-size: 13px;
+  }
+
+  .nav-auth {
+    gap: 8px;
+  }
+
+  .btn-masuk,
+  .btn-Registrasi {
+    padding: 9px 15px;
+    font-size: 13px;
+  }
+
+
+  /* HERO */
+  .hero {
+    min-height: 280px;
+    padding: 55px 35px;
+  }
+
+  .hero-overlay {
+    max-width: 700px;
+  }
+
+  .hero-label {
+    font-size: 20px;
+    white-space: normal;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+    line-height: 1.15;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+
+
+  /* FEATURES */
+  .features {
+    padding: 45px 35px;
+    gap: 30px;
+  }
+
+  .features-text {
+    width: 38%;
+  }
+
+  .features-text h2 {
+    font-size: 30px;
+  }
+
+  .features-cards {
+    gap: 15px;
+  }
+
+  .features-card {
+    width: auto;
+    min-width: 0;
+    flex: 1;
+    padding: 20px;
+    left: 0;
+  }
+
+
+  /* STEPS */
+  .steps {
+    padding: 75px 35px;
+  }
+
+  .steps-line {
+    margin-left: 0;
+    width: 100%;
+  }
+
+
+  /* INFORMATION */
+  .information {
+    padding: 65px 35px;
+  }
+
+  .information-cards {
+    gap: 20px;
+  }
+
+  .information-card {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    padding: 22px;
+  }
+
+
+  /* DETAIL */
   .information-detail {
-    padding: 50px 25px;
+    padding: 60px 35px;
+  }
+
+  .detail-wrapper {
+    gap: 35px;
+  }
+
+  .detail-content h1 {
+    font-size: 38px;
+  }
+
+
+  /* FOOTER */
+  .footer {
+    padding: 55px 35px 0;
+  }
+
+  .footer-container {
+    gap: 35px;
+  }
+
+}
+
+
+/* ==================================================
+   RESPONSIVE TABLET DAN INFOCUS KECIL
+================================================== */
+
+@media screen and (max-width: 900px) {
+
+  /* HERO */
+  .hero {
+    min-height: 260px;
+    padding: 45px 25px;
+  }
+
+  .hero-label {
+    font-size: 18px;
+    letter-spacing: 0.05em;
+  }
+
+  .hero h1 {
+    font-size: 29px;
+  }
+
+  .hero-description {
+    font-size: 15px;
+  }
+
+  .hero-button {
+    font-size: 16px;
+    padding: 12px 22px;
+  }
+
+
+  /* FEATURES */
+  .features {
+    flex-direction: column;
+    align-items: stretch;
+
+    padding: 50px 30px;
+    gap: 30px;
+  }
+
+  .features-text {
+    width: 100%;
+  }
+
+  .features-text h2 {
+    max-width: 600px;
+    font-size: 32px;
+  }
+
+  .features-text>p:last-child {
+    max-width: 650px;
+  }
+
+  .features-cards {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+  }
+
+  .features-card {
+    width: auto;
+    min-height: 190px;
+    padding: 18px;
+    left: 0;
+  }
+
+  .features-card h3 {
+    font-size: 14px;
+  }
+
+  .features-card p {
+    font-size: 12px;
+  }
+
+
+  /* STEPS */
+  .steps {
+    padding: 65px 30px;
+  }
+
+  .steps-header,
+  .information-header {
+    margin-bottom: 40px;
+  }
+
+  .steps-header h2,
+  .information-header h2 {
+    font-size: 30px;
+  }
+
+  .steps-line {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 30px 20px;
+
+    width: 100%;
+    margin: 0;
+  }
+
+  .step-item {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .step-top {
+    width: auto;
+  }
+
+  .step-item:not(:last-child) .step-top::after {
+    display: none;
+  }
+
+  .steps-content {
+    padding-top: 12px;
+    padding-right: 5px;
+  }
+
+  .steps-content p {
+    opacity: 1;
+    visibility: visible;
+  }
+
+
+  /* INFORMATION */
+  .information {
+    padding: 60px 30px;
+  }
+
+  .information-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .information-card {
+    width: auto;
+    min-height: 260px;
+  }
+
+
+  /* DETAIL */
+  .information-detail {
+    padding: 50px 30px;
+  }
+
+  .detail-wrapper {
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+  }
+
+  .detail-image-wrapper {
+    padding-top: 30px;
+  }
+
+  .detail-content h1 {
+    font-size: 32px;
+  }
+
+
+  /* FOOTER */
+  .footer {
+    padding: 50px 30px 0;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 45px;
+  }
+
+}
+
+
+/* ==================================================
+   RESPONSIVE HANDPHONE
+================================================== */
+
+@media screen and (max-width: 600px) {
+
+  /* HERO */
+  .hero {
+    min-height: 300px;
+    padding: 45px 20px;
+    background-position: center;
+  }
+
+  .hero-overlay {
+    width: 100%;
+  }
+
+  .hero-label {
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: normal;
+  }
+
+  .hero h1 {
+    font-size: 27px;
+    line-height: 1.2;
+    margin-bottom: 15px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+
+  .hero-button {
+    font-size: 14px;
+    padding: 11px 20px;
+  }
+
+
+  /* FEATURES */
+  .features {
+    padding: 45px 22px;
+    gap: 25px;
+  }
+
+  .fea-label {
+    font-size: 15px;
+  }
+
+  .features-text h2 {
+    font-size: 28px;
+  }
+
+  .features-text>p:last-child {
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: left;
+  }
+
+  .features-cards {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .features-card {
+    min-height: auto;
+    padding: 22px;
+  }
+
+  .features-card-icon {
+    margin-bottom: 15px;
+  }
+
+  .features-card h3 {
+    font-size: 16px;
+  }
+
+  .features-card p {
+    font-size: 13px;
+  }
+
+
+  /* STEPS */
+  .steps {
+    padding: 55px 22px;
+  }
+
+  .steps-header,
+  .information-header {
+    margin-bottom: 30px;
+  }
+
+  .steps-header h2,
+  .information-header h2 {
+    font-size: 26px;
+  }
+
+  .steps-line {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .step-item {
+    align-items: flex-start;
+  }
+
+  .step-number {
+    font-size: 14px;
+  }
+
+  .steps-content {
+    padding-top: 12px;
+  }
+
+  .steps-content h3 {
+    font-size: 15px;
+  }
+
+  .steps-content p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+
+  /* INFORMATION */
+  .information {
+    padding: 50px 22px;
+  }
+
+  .information-cards {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .information-card {
+    min-height: 240px;
+    padding: 25px;
+  }
+
+  .information-card h3 {
+    font-size: 18px;
+  }
+
+  .information-card p {
+    font-size: 13px;
+  }
+
+
+  /* DETAIL */
+  .information-detail {
+    padding: 40px 22px;
   }
 
   .detail-wrapper {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 25px;
   }
 
   .detail-image-wrapper {
@@ -856,13 +1335,68 @@ body {
   }
 
   .detail-image {
-    height: 300px;
-    min-height: 0;
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+  }
+
+  .detail-content {
+    padding: 0;
   }
 
   .detail-content h1 {
-    font-size: 36px;
+    font-size: 30px;
   }
+
+  .detail-description {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+
+  /* FOOTER */
+  .footer {
+    padding: 50px 25px 0;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 35px;
+    padding-bottom: 40px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+}
+
+
+/* ==================================================
+   HANDPHONE KECIL
+================================================== */
+
+@media screen and (max-width: 380px) {
+
+  .hero h1 {
+    font-size: 23px;
+  }
+
+  .hero-label {
+    font-size: 12px;
+  }
+
+  .features-text h2 {
+    font-size: 25px;
+  }
+
+  .steps-header h2,
+  .information-header h2 {
+    font-size: 23px;
+  }
+
 }
 
 
@@ -1559,7 +2093,7 @@ body {
    FORM DATA DIRI PAGE
 ========================= */
 
-form-page {
+.form-page {
   width: 100%;
   min-height: 100vh;
   background: #fffaf3;
@@ -1671,7 +2205,7 @@ form-page {
   border: none;
   border-radius: 10px;
   background: #f7941d;
-  color: #fff;
+  color: var(--black);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -2521,6 +3055,7 @@ form-page {
   box-sizing: border-box;
 }
 
+
 /* =================================
    SIDEBAR PENERIMA
 ================================= */
@@ -2646,24 +3181,191 @@ form-page {
   background: #fff0f0;
 }
 
+
+
+/* =================================
+   HAMBURGER SIDEBAR
+================================= */
+
+.sidebar-penerima-hamburger {
+  display: none;
+}
+
+.sidebar-penerima-overlay {
+  display: none;
+}
+
+
 /* =================================
    RESPONSIVE
 ================================= */
 
 @media (max-width: 768px) {
 
-  .sidebar-penerima,
+  /* =================================
+     TOMBOL HAMBURGER
+  ================================= */
+
+  .sidebar-penerima-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 15px;
+    left: 15px;
+
+    width: 42px;
+    height: 42px;
+
+    background: #ffffff;
+    color: #202124;
+    border: 1px solid #eeeeee;
+    border-radius: 10px;
+
+    cursor: pointer;
+    z-index: 10003;
+  }
+
+
+  /* =================================
+     SIDEBAR PENERIMA
+  ================================= */
+
+  .sidebar-penerima {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 85vw;
+
+    height: 100vh !important;
+    height: 100dvh !important;
+
+    padding: 25px 18px !important;
+    box-sizing: border-box;
+
+    background: #ffffff !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    z-index: 10002 !important;
+    overflow-y: auto;
+  }
+
+  /* Sidebar terbuka */
+  .sidebar-penerima.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+
+  /* =================================
+     LOGO
+  ================================= */
+
+  .sidebar-penerima-logo {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+
+  /* =================================
+     LABEL MENU
+  ================================= */
+
+  .sidebar-penerima-label {
+    flex-shrink: 0;
+  }
+
+
+  /* =================================
+     MENU NAVIGASI
+  ================================= */
+
+  .sidebar-penerima-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px;
+
+    flex-shrink: 0;
+  }
+
+  .sidebar-penerima-link {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+
+  /* =================================
+     TOMBOL KELUAR PALING BAWAH
+  ================================= */
+
+  .sidebar-penerima-bottom {
+    margin-top: auto !important;
+
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    border-top: 1px solid #eeeeee;
+
+    flex-shrink: 0;
+  }
+
+  .sidebar-penerima-logout {
+    width: 100%;
+  }
+
+
+  /* =================================
+     OVERLAY
+  ================================= */
+
+  .sidebar-penerima-overlay {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 10001 !important;
+  }
+
+
+  /* =================================
+     KONTEN DASHBOARD PENERIMA
+  ================================= */
+
+  .konten-penerima {
+    margin-left: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 75px 14px 20px !important;
+  }
+
+
   .sidebar-pemberi {
     width: 210px;
     min-width: 210px;
     padding: 20px 12px;
   }
 
-  .konten-penerima,
   .konten-pemberi {
     margin-left: 210px;
     padding: 20px 14px;
   }
+
 }
 
 /* ========================================
@@ -3327,10 +4029,10 @@ form-page {
   }
 }
 
+
 /* =================================
    LAYOUT RIWAYAT BANTUAN PENERIMA
 ================================= */
-
 
 .riwayat-layout {
   min-height: 100vh;
@@ -3340,7 +4042,6 @@ form-page {
   color: #26354d;
   font-family: Inter, Arial, sans-serif;
 }
-
 
 .riwayat-main {
   width: calc(100% - 250px);
@@ -3529,6 +4230,10 @@ form-page {
   cursor: not-allowed;
 }
 
+/* =================================
+   RESPONSIVE TABLET
+================================= */
+
 @media (max-width: 900px) {
   .riwayat-main {
     padding: 22px;
@@ -3542,6 +4247,10 @@ form-page {
     grid-column: 1 / -1;
   }
 }
+
+/* =================================
+   RESPONSIVE MOBILE
+================================= */
 
 @media (max-width: 600px) {
   .riwayat-main {
@@ -3575,8 +4284,169 @@ form-page {
   }
 }
 
+/* =================================
+   KONTEN MOBILE
+================================= */
+
+@media (max-width: 760px) {
+  .riwayat-main {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    padding: 70px 16px 16px;
+    box-sizing: border-box;
+  }
+}
+
+/* =================================
+   HAMBURGER SIDEBAR PEMBERI
+================================= */
+
+.sidebar-pemberi-hamburger {
+  display: none;
+}
+
+.sidebar-pemberi-overlay {
+  display: none;
+}
+
+/* =================================
+   RESPONSIVE SIDEBAR PEMBERI
+================================= */
+
+@media (max-width: 768px) {
+
+  /* TOMBOL HAMBURGER */
+  .sidebar-pemberi-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 15px;
+    left: 15px;
+
+    width: 42px;
+    height: 42px;
+
+    background: #ffffff;
+    color: #202124;
+    border: 1px solid #eeeeee;
+    border-radius: 10px;
+
+    cursor: pointer;
+    z-index: 10003;
+  }
+
+  /* SIDEBAR */
+  .sidebar-pemberi {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 85vw;
+
+    height: 100vh !important;
+    height: 100dvh !important;
+
+    padding: 25px 18px !important;
+
+    background: #ffffff !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    z-index: 10002 !important;
+    overflow-y: auto;
+  }
+
+  /* SIDEBAR TERBUKA */
+  .sidebar-pemberi.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  /* OVERLAY */
+  .sidebar-pemberi-overlay {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 10001 !important;
+  }
+
+  /* KONTEN PEMBERI */
+  .konten-pemberi {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 75px 14px 20px !important;
+    box-sizing: border-box;
+  }
+
+  /* LAYOUT CONTENT */
+  .layout-pemberi-content {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 75px 14px 20px !important;
+    box-sizing: border-box;
+  }
+
+  .sidebar-pemberi {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-pemberi-bottom {
+    margin-top: auto;
+    padding-top: 20px;
+  }
+
+  .sidebar-pemberi-logout {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .sidebar-pemberi-bottom {
+    margin-top: auto !important;
+    padding-top: 0 !important;
+    padding-bottom: 10px !important;
+  }
+
+  .sidebar-pemberi-nav {
+    align-items: flex-start !important;
+  }
+
+  .sidebar-pemberi-nav .sidebar-penerima-link {
+    justify-content: flex-start !important;
+    text-align: left !important;
+    width: 100%;
+  }
+
+  .sidebar-pemberi-nav .sidebar-penerima-link span {
+    text-align: left !important;
+  }
+
+  .sidebar-pemberi-logout {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  .sidebar-pemberi-logout span {
+    text-align: left !important;
+  }
+}
+
 /* =====================================
-HALAMAN PROFIL PENERIMA
+   HALAMAN PROFIL PENERIMA
 ===================================== */
 
 .profil-penerima-layout {
@@ -3868,6 +4738,10 @@ HALAMAN PROFIL PENERIMA
   color: #7b8798;
 }
 
+/* =================================
+   RESPONSIVE TABLET
+================================= */
+
 @media (max-width: 900px) {
   .profil-penerima-main {
     padding: 22px;
@@ -3877,6 +4751,10 @@ HALAMAN PROFIL PENERIMA
     grid-template-columns: 1fr;
   }
 }
+
+/* =================================
+   RESPONSIVE MOBILE
+================================= */
 
 @media (max-width: 600px) {
   .profil-penerima-main {
@@ -3894,6 +4772,19 @@ HALAMAN PROFIL PENERIMA
   }
 }
 
+/* =================================
+   PERBAIKAN POSISI KONTEN MOBILE
+================================= */
+
+@media (max-width: 760px) {
+  .profil-penerima-main {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    padding: 70px 16px 16px;
+    box-sizing: border-box;
+  }
+}
 
 /* =================================
    DASHBOARD PEMBERI
@@ -4460,17 +5351,20 @@ HALAMAN PROFIL PENERIMA
   border-radius: 12px;
 }
 
-.daftar-event-image-placeholder {
+.daftar-event-image {
   width: 190px;
-  min-height: 145px;
+  height: 145px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
+  overflow: hidden;
   border-radius: 9px;
-  color: #999;
-  font-size: 13px;
+  background: #f5f5f5;
+}
+
+.daftar-event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .daftar-event-content {
@@ -4555,6 +5449,237 @@ HALAMAN PROFIL PENERIMA
   background: #f7941d;
   color: white;
   border-color: #f7941d;
+}
+
+
+/* =================================
+   DETAIL EVENT PEMBERI
+================================= */
+
+.detail-event-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 0 40px;
+  color: #111;
+  box-sizing: border-box;
+}
+
+/* TOMBOL KEMBALI */
+
+.detail-event-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 20px;
+  transition: 0.2s;
+}
+
+.detail-event-back:hover {
+  color: #f7941d;
+}
+
+/* CONTAINER */
+
+.detail-event-container {
+  width: 100%;
+  background: white;
+  border: 1px solid #eeeeee;
+  border-radius: 14px;
+  padding: 25px;
+  box-sizing: border-box;
+}
+
+/* GAMBAR DAN JUDUL */
+
+.detail-event-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 25px;
+  align-items: stretch;
+  margin-bottom: 22px;
+}
+
+/* GAMBAR EVENT */
+
+.detail-event-image {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f3f3f3;
+}
+
+.detail-event-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.detail-image-fallback {
+  display: none;
+}
+
+.detail-event-image.image-not-available {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.detail-event-image.image-not-available .detail-image-fallback {
+  display: block;
+}
+
+/* INFORMASI JUDUL */
+
+.detail-event-title {
+  padding: 8px 5px;
+}
+
+.detail-event-category {
+  display: inline-block;
+  padding: 7px 14px;
+  background: #fff0df;
+  color: #e68100;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.detail-event-title h1 {
+  font-size: 26px;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 0 0 22px;
+}
+
+.detail-event-info {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.detail-event-info div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #666;
+  font-size: 15px;
+}
+
+.detail-event-info svg {
+  color: #f7941d;
+  flex-shrink: 0;
+}
+
+/* DESKRIPSI */
+
+.detail-event-description {
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 22px;
+}
+
+.detail-event-description h2 {
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0 0 18px;
+}
+
+.detail-event-description p {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #555;
+  margin: 0 0 13px;
+  text-align: justify;
+}
+
+.detail-event-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* TOMBOL DONASI */
+
+.detail-event-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detail-event-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 23px;
+  background: #f7941d;
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.detail-event-actions button:hover {
+  background: #e68100;
+}
+
+/* EVENT TIDAK DITEMUKAN */
+
+.detail-event-not-found {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.detail-event-not-found a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  color: #f7941d;
+  text-decoration: none;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .detail-event-page {
+    padding: 20px 15px 35px;
+  }
+
+  .detail-event-container {
+    padding: 16px;
+  }
+
+  .detail-event-hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .detail-event-image {
+    height: 230px;
+  }
+
+  .detail-event-title h1 {
+    font-size: 22px;
+  }
+
+  .detail-event-description {
+    padding: 18px;
+  }
+
+  .detail-event-actions button {
+    width: 100%;
+  }
 }
 
 /* =================================
@@ -5566,6 +6691,7 @@ HALAMAN PROFIL PENERIMA
     font-size: 23px;
   }
 }
+
 
 /* =====================================
 CSS NYA HILDAA
