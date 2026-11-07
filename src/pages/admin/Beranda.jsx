@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   LineChart,
   Line,
@@ -15,13 +17,58 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-// Data pengajuan masih kosong, tidak menggunakan data dummy
-const dataPengajuan = [];
-
 function Beranda() {
+  const [statistik, setStatistik] = useState({
+    pengajuanMenunggu: 0,
+    totalPemberi: 0,
+    totalZakat: 0,
+    grafikPengajuan: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const ambilStatistik = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/admin/dashboard"
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message || "Gagal mengambil statistik."
+          );
+        }
+
+        setStatistik({
+          pengajuanMenunggu: Number(result.pengajuanMenunggu || 0),
+          totalPemberi: Number(result.totalPemberi || 0),
+          totalZakat: Number(result.totalZakat || 0),
+          grafikPengajuan: result.grafikPengajuan || [],
+        });
+      } catch (err) {
+        console.error("Gagal mengambil statistik:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    ambilStatistik();
+  }, []);
+
+  const formatRupiah = (angka) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(angka);
+
   return (
     <div className="admin-beranda">
-      {/* Header */}
       <header className="beranda-header">
         <div>
           <h1>Beranda</h1>
@@ -29,15 +76,25 @@ function Beranda() {
         </div>
       </header>
 
-      {/* Kartu Statistik */}
+      {error && (
+        <p className="statistik-deskripsi" role="alert">
+          Gagal mengambil data: {error}
+        </p>
+      )}
+
       <section className="statistik-grid">
         <article className="statistik-card">
           <div className="statistik-info">
             <p className="statistik-label">Pengajuan Menunggu</p>
-            <h2>—</h2>
+
+            <h2>
+              {loading ? "..." : statistik.pengajuanMenunggu}
+            </h2>
+
             <p className="statistik-deskripsi">
-              Data pengajuan belum tersedia
+              Total pengajuan menunggu verifikasi
             </p>
+
             <a href="/admin/pengajuan" className="statistik-link">
               Lihat Pengajuan <span>→</span>
             </a>
@@ -51,10 +108,15 @@ function Beranda() {
         <article className="statistik-card">
           <div className="statistik-info">
             <p className="statistik-label">Total Pemberi Zakat</p>
-            <h2>—</h2>
+
+            <h2>
+              {loading ? "..." : statistik.totalPemberi}
+            </h2>
+
             <p className="statistik-deskripsi">
-              Data pemberi zakat belum tersedia
+              Jumlah pengguna pemberi zakat
             </p>
+
             <a href="/admin/pengguna" className="statistik-link">
               Lihat Pengguna <span>→</span>
             </a>
@@ -66,13 +128,18 @@ function Beranda() {
         </article>
       </section>
 
-      {/* Total Zakat */}
       <section className="total-zakat-card">
         <div className="total-zakat-info">
           <p className="statistik-label">Total Zakat Terkumpul</p>
-          <h2>Belum tersedia</h2>
+
+          <h2>
+            {loading
+              ? "Memuat..."
+              : formatRupiah(statistik.totalZakat)}
+          </h2>
+
           <p className="statistik-deskripsi">
-            Data total dana zakat belum tersedia
+            Total transaksi donasi yang berhasil
           </p>
         </div>
 
@@ -81,7 +148,6 @@ function Beranda() {
         </div>
       </section>
 
-      {/* Grafik Pengajuan */}
       <section className="grafik-card">
         <div className="grafik-header">
           <div>
@@ -95,10 +161,14 @@ function Beranda() {
         </div>
 
         <div className="grafik-container">
-          {dataPengajuan.length > 0 ? (
+          {loading ? (
+            <div className="grafik-empty">
+              <strong>Memuat data grafik...</strong>
+            </div>
+          ) : statistik.grafikPengajuan.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={dataPengajuan}
+                data={statistik.grafikPengajuan}
                 margin={{
                   top: 10,
                   right: 20,
@@ -153,9 +223,7 @@ function Beranda() {
             <div className="grafik-empty">
               <TrendingUp size={36} strokeWidth={1.5} />
               <strong>Belum Ada Data Grafik</strong>
-              <p>
-                Grafik pengajuan akan ditampilkan setelah data tersedia.
-              </p>
+              <p>Grafik akan muncul setelah data tersedia.</p>
             </div>
           )}
         </div>
