@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
+const API_URL = "http://localhost:5000/api";
 
 const NAMA_ASNAF = {
   fakir: "Fakir",
@@ -36,17 +38,6 @@ const TIPE_JAWABAN = [
 ];
 
 const TIPE_PILIHAN = ["pilihan", "checkbox", "dropdown"];
-
-const NAMA_KRITERIA = {
-  fakir: ["Fakir - Penghasilan tidak mencukupi"],
-  miskin: ["Miskin - Penghasilan belum mencukupi"],
-  amil: ["Amil - Petugas pengelola zakat"],
-  muallaf: ["Muallaf - Orang yang baru masuk Islam"],
-  riqab: ["Riqab - Pembebasan dari perbudakan"],
-  gharim: ["Gharim - Memiliki utang"],
-  fisabilillah: ["Fisabilillah - Berjuang di jalan Allah"],
-  "ibnu-sabil": ["Ibnu Sabil - Musafir yang kehabisan bekal"],
-};
 
 function buatId() {
   return `kriteria-${Date.now()}-${Math.random()
@@ -96,9 +87,11 @@ function FormKriteria() {
   const kodeKriteria = buatKodeKriteria(asnaf);
   const modeEdit = Boolean(id);
 
-  const [namaKriteria, setNamaKriteria] = useState(
-    NAMA_KRITERIA[asnaf]?.[0] || `${namaAsnaf} - Kriteria Zakat`
-  );
+  // DATA NAMA KRITERIA DARI DATABASE
+  const [daftarNamaKriteria, setDaftarNamaKriteria] = useState([]);
+  const [idKriteria, setIdKriteria] = useState("");
+  const [namaKriteria, setNamaKriteria] = useState("");
+  const [loadingKriteria, setLoadingKriteria] = useState(true);
 
   const [deskripsi, setDeskripsi] = useState(
     "Deskripsi belum tersedia"
@@ -126,6 +119,64 @@ function FormKriteria() {
   });
 
   const [pesanError, setPesanError] = useState("");
+
+  // MENGAMBIL NAMA KRITERIA BERDASARKAN ASNAF
+  useEffect(() => {
+    let masihAktif = true;
+
+    async function ambilNamaKriteria() {
+      try {
+        setLoadingKriteria(true);
+        setPesanError("");
+
+        const response = await fetch(
+          `${API_URL}/admin/kriteria?asnaf=${encodeURIComponent(asnaf)}`
+        );
+
+        const hasil = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            hasil.message || "Gagal mengambil data kriteria."
+          );
+        }
+
+        const data = Array.isArray(hasil.data)
+          ? hasil.data
+          : [];
+
+        if (!masihAktif) return;
+
+        setDaftarNamaKriteria(data);
+
+        // Memilih kriteria pertama secara otomatis
+        if (data.length > 0) {
+          setIdKriteria(String(data[0].id_kriteria));
+          setNamaKriteria(data[0].nama_kriteria);
+        } else {
+          setIdKriteria("");
+          setNamaKriteria("");
+        }
+      } catch (error) {
+        if (masihAktif) {
+          setPesanError(error.message);
+          setDaftarNamaKriteria([]);
+          setIdKriteria("");
+          setNamaKriteria("");
+        }
+      } finally {
+        if (masihAktif) {
+          setLoadingKriteria(false);
+        }
+      }
+    }
+
+    ambilNamaKriteria();
+
+    return () => {
+      masihAktif = false;
+    };
+  }, [asnaf]);
 
   function ubahPertanyaan(idPertanyaan, perubahan) {
     setPertanyaan((dataLama) =>
@@ -157,9 +208,17 @@ function FormKriteria() {
     );
   }
 
+  // MENYIMPAN DATA KUESIONER
   function simpanKuesioner(event) {
     event.preventDefault();
     setPesanError("");
+
+    if (!idKriteria) {
+      setPesanError(
+        "Silakan pilih nama kriteria terlebih dahulu."
+      );
+      return;
+    }
 
     const pertanyaanKosong = pertanyaan.findIndex(
       (item) => !item.pertanyaan.trim()
@@ -179,6 +238,8 @@ function FormKriteria() {
       opsi: TIPE_PILIHAN.includes(item.tipeJawaban)
         ? item.opsi.map((opsi) => opsi.trim()).filter(Boolean)
         : [],
+      idKriteria,
+      namaKriteria,
       asnaf,
       namaAsnaf,
     }));
@@ -211,6 +272,7 @@ function FormKriteria() {
       localStorage.setItem(
         `kriteria-info-${asnaf}`,
         JSON.stringify({
+          idKriteria,
           kodeKriteria,
           namaKriteria,
           deskripsi,
@@ -247,7 +309,9 @@ function FormKriteria() {
 
         <span>/</span>
 
-        <span>{modeEdit ? "Edit Kriteria" : "Tambah Kriteria"}</span>
+        <span>
+          {modeEdit ? "Edit Kriteria" : "Tambah Kriteria"}
+        </span>
       </nav>
 
       {/* JUDUL */}
@@ -290,18 +354,45 @@ function FormKriteria() {
 
               <select
                 id="nama-kriteria"
-                value={namaKriteria}
-                onChange={(event) =>
-                  setNamaKriteria(event.target.value)
+                value={idKriteria}
+                onChange={(event) => {
+                  const idTerpilih = event.target.value;
+
+                  setIdKriteria(idTerpilih);
+
+                  const kriteriaTerpilih =
+                    daftarNamaKriteria.find(
+                      (item) =>
+                        String(item.id_kriteria) === idTerpilih
+                    );
+
+                  setNamaKriteria(
+                    kriteriaTerpilih?.nama_kriteria || ""
+                  );
+                }}
+                disabled={
+                  loadingKriteria ||
+                  daftarNamaKriteria.length === 0
                 }
               >
-                {(NAMA_KRITERIA[asnaf] || [
-                  `${namaAsnaf} - Kriteria Zakat`,
-                ]).map((nama) => (
-                  <option key={nama} value={nama}>
-                    {nama}
+                {loadingKriteria ? (
+                  <option value="">
+                    Memuat nama kriteria...
                   </option>
-                ))}
+                ) : daftarNamaKriteria.length === 0 ? (
+                  <option value="">
+                    Belum ada kriteria untuk asnaf ini
+                  </option>
+                ) : (
+                  daftarNamaKriteria.map((item) => (
+                    <option
+                      key={item.id_kriteria}
+                      value={String(item.id_kriteria)}
+                    >
+                      {item.nama_kriteria}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 
@@ -344,8 +435,17 @@ function FormKriteria() {
               key={item.id}
             >
 
+              {/* JUDUL DAN KODE PERTANYAAN */}
               <div className="form-question-heading">
-                <strong>Pertanyaan {index + 1}</strong>
+                <div className="form-question-title">
+                  <strong>
+                    {buatKodePertanyaan(asnaf, index)}
+                  </strong>
+
+                  <span>
+                    Pertanyaan {index + 1}
+                  </span>
+                </div>
 
                 {pertanyaan.length > 1 && (
                   <button
@@ -416,7 +516,8 @@ function FormKriteria() {
                         value={opsi}
                         onChange={(event) => {
                           const opsiBaru = [...item.opsi];
-                          opsiBaru[opsiIndex] = event.target.value;
+                          opsiBaru[opsiIndex] =
+                            event.target.value;
 
                           ubahPertanyaan(item.id, {
                             opsi: opsiBaru,
@@ -532,7 +633,9 @@ function FormKriteria() {
           <button
             type="button"
             className="form-cancel-button"
-            onClick={() => navigate(`/admin/kriteria/${asnaf}`)}
+            onClick={() =>
+              navigate(`/admin/kriteria/${asnaf}`)
+            }
           >
             Batal
           </button>
@@ -540,6 +643,10 @@ function FormKriteria() {
           <button
             type="submit"
             className="form-save-button"
+            disabled={
+              loadingKriteria ||
+              daftarNamaKriteria.length === 0
+            }
           >
             Simpan Kriteria
           </button>
